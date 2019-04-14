@@ -1,13 +1,36 @@
 package ru.cft.focusstart.matrosov;
 
+import ru.cft.focusstart.matrosov.io.*;
 import ru.cft.focusstart.matrosov.math.*;
 
-import java.util.Arrays;
+import java.util.Scanner;
 
 public class Application {
     public static void main(String[] args) {
-        MultiplyTable table = new MultiplyTable(10);
-        System.out.println("5 * 9 = " + table.getMultiplicationResult(9, 5));
-        System.out.println(Arrays.deepToString(table.getTable()));
+        Application.run();
+    }
+
+    private static void run() {
+        while (ApplicationParameters.getInstance().getTableSize() == 0) {
+            try {
+                OutputPrinter.showSizeAskingMessage(ApplicationParameters.MINIMUM_TABLE_SIZE, ApplicationParameters.MAXIMUM_TABLE_SIZE);
+                int inputNumber = new Scanner(System.in).nextInt();
+                ApplicationParameters.getInstance().setTableSize(inputNumber);
+            } catch (RuntimeException e) {
+                OutputPrinter.showParamErrorMessage();
+            }
+        }
+
+        Application.buildTable();
+        OutputPrinter.showGoodbyeMessage();
+    }
+
+    private static void buildTable() {
+        try {
+            MultiplyTable table = new MultiplyTable(ApplicationParameters.getInstance().getTableSize());
+            OutputPrinter.showMultiplyTable(table);
+        } catch (Exception e) {
+            OutputPrinter.showErrorMessage();
+        }
     }
 }

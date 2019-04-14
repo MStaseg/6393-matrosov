@@ -11,14 +11,15 @@ public class MultiplyTable {
     /**
      * Builds multiplication table of size pased
      *
-     * @param size size of generating table
+     * @param size size of generating table larger than 0
      */
     public MultiplyTable(int size) {
+        if (size <= 0) throw new IllegalArgumentException();
         this.size = size;
         this.table = new int[size][];
         for (int i = 0; i < size; i ++) {
+            this.table[i] = new int[i + 1];
             for (int j = 0; j < i + 1; j ++) {
-                if (this.table[i] == null) this.table[i] = new int[i + 1];
                 this.table[i][j] = (i + 1) * (j + 1);
             }
         }
@@ -53,7 +54,7 @@ public class MultiplyTable {
      */
     public int getMultiplicationResult(int first, int second) {
         if (first > size || second > size) throw new IllegalArgumentException();
-        return first >= second ? table[first][second] : table[second][first];
+        return first >= second ? table[first - 1][second - 1] : table[second - 1][first - 1];
     }
 
     @Override
