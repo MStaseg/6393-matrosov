@@ -1,5 +1,6 @@
 package ru.cft.focusstart.matrosov.io;
 
+import com.sun.javafx.binding.StringFormatter;
 import ru.cft.focusstart.matrosov.math.MultiplyTable;
 
 import java.util.Arrays;
@@ -24,28 +25,27 @@ public class OutputPrinter {
      * @param table an instance of MultiplyTable
      */
     public  static void showMultiplyTable(MultiplyTable table) {
-        if (table == null) {
-            return;
-        } else if (table.getSize() == 1) {
-            System.out.println(table.getMultiplicationResult(1, 1));
-            return;
-        }
+        if (table == null) return;
 
         int sizeOfTable = table.getSize();
+        if (sizeOfTable == 1) { System.out.println(1); return; }
+
         int formatLength =  String.valueOf(sizeOfTable * sizeOfTable).length();
 
         char[] lineArr = new char[formatLength];
         Arrays.fill(lineArr, '-');
-        String dividingLineElement = String.valueOf(lineArr) + "+";
+        String dividingLineElement = String.valueOf(lineArr);
+        String[] dividers = new String[sizeOfTable];
+        Arrays.fill(dividers, dividingLineElement);
 
+        String[] tablePrintLine = new String[sizeOfTable];
         for (int i = 0; i < sizeOfTable; i++) {
             for (int j = 0; j < sizeOfTable; j++) {
                 int number = table.getMultiplicationResult(i + 1, j + 1);
-                System.out.printf("%" + formatLength + "d|", number);
+                tablePrintLine[j] = String.format("%" + formatLength + "d", number);
             }
-            System.out.println();
-            OutputPrinter.printDividerLine(dividingLineElement, sizeOfTable);
-            System.out.println();
+            OutputPrinter.printOutputDataLine(tablePrintLine, "|");
+            OutputPrinter.printOutputDataLine(dividers, "+");
         }
     }
 
@@ -53,9 +53,7 @@ public class OutputPrinter {
         System.out.println("Работа приложения завершена");
     }
 
-    private static void printDividerLine(String devider, int repeat) {
-        for (int j = 0; j < repeat; j++) {
-            System.out.print(devider);
-        }
+    private static void printOutputDataLine(String[] elements, String divider) {
+        System.out.println(String.join(divider, elements));
     }
 }

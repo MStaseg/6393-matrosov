@@ -1,6 +1,6 @@
 package ru.cft.focusstart.matrosov;
 
-import ru.cft.focusstart.matrosov.io.InputValidator;
+import ru.cft.focusstart.matrosov.validation.*;
 
 /**
  * Class-singleton for holding application parameters and default static constants
@@ -21,7 +21,7 @@ public class ApplicationParameters {
     }
 
     void setTableSize(int tableSize) {
-        if (InputValidator.validateTableSize(tableSize))
+        if (Validator.validateTableSize(tableSize))
             this.tableSize = tableSize;
         else
             throw new IllegalArgumentException();

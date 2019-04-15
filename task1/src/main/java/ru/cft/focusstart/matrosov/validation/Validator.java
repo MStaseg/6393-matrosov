@@ -1,8 +1,8 @@
-package ru.cft.focusstart.matrosov.io;
+package ru.cft.focusstart.matrosov.validation;
 
 import ru.cft.focusstart.matrosov.ApplicationParameters;
 
-public class InputValidator {
+public class Validator {
     /**
      * Checks if current multiplication table size is correct
      *
