@@ -14,7 +14,9 @@ public class MultiplyTable {
      * @param size size of generating table larger than 0
      */
     public MultiplyTable(int size) {
-        if (size <= 0) throw new IllegalArgumentException();
+        if (size <= 0)
+            throw new IllegalArgumentException();
+
         this.size = size;
         this.table = new int[size][];
         for (int i = 0; i < size; i ++) {
@@ -53,7 +55,9 @@ public class MultiplyTable {
      * @return resulting integer number
      */
     public int getMultiplicationResult(int first, int second) {
-        if (first > size || second > size) throw new IllegalArgumentException();
+        if (first > size || second > size)
+            throw new IllegalArgumentException();
+
         return first >= second ? table[first - 1][second - 1] : table[second - 1][first - 1];
     }
 

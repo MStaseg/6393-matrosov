@@ -25,10 +25,14 @@ public class OutputPrinter {
      * @param table an instance of MultiplyTable
      */
     public  static void showMultiplyTable(MultiplyTable table) {
-        if (table == null) return;
+        if (table == null)
+            return;
 
         int sizeOfTable = table.getSize();
-        if (sizeOfTable == 1) { System.out.println(1); return; }
+        if (sizeOfTable == 1) {
+            System.out.println(1);
+            return;
+        }
 
         int formatLength =  String.valueOf(sizeOfTable * sizeOfTable).length();
 
