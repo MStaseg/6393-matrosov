@@ -1,7 +1,7 @@
 package ru.cft.focusstart.matrosov;
 
-import ru.cft.focusstart.matrosov.io.*;
-import ru.cft.focusstart.matrosov.math.*;
+import ru.cft.focusstart.matrosov.io.OutputPrinter;
+import ru.cft.focusstart.matrosov.math.MultiplyTable;
 
 import java.util.Scanner;
 

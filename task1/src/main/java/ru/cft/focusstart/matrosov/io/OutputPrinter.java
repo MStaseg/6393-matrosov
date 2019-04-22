@@ -1,6 +1,5 @@
 package ru.cft.focusstart.matrosov.io;
 
-import com.sun.javafx.binding.StringFormatter;
 import ru.cft.focusstart.matrosov.math.MultiplyTable;
 
 import java.util.Arrays;

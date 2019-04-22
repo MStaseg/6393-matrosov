@@ -1,6 +1,6 @@
 package ru.cft.focusstart.matrosov;
 
-import ru.cft.focusstart.matrosov.validation.*;
+import ru.cft.focusstart.matrosov.validation.Validator;
 
 /**
  * Class-singleton for holding application parameters and default static constants
