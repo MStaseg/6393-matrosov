@@ -52,7 +52,7 @@ class FileParserUtils {
     static Geometric2DShape buildShape(GeometricShapeType type, String paramString) {
         Double[] params = parseParametersString(paramString);
         if (params.length < checkParamCount(type) || type == null)
-            return null;
+            throw new IllegalArgumentException("Невозможно построить фигуру по имеющимся параметрам");
 
         switch (type) {
             case SQUARE: return new Square(params[0]);

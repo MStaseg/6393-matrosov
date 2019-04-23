@@ -51,12 +51,15 @@ public class Triangle implements Geometric2DShape {
     /**
      * Uses cosinus theorem to calculate an front angle value for current side. Returns value in radians
      *
-     * @param currentSide an side we generate an angle size for
-     * @param secondSide second side length
-     * @param thirdSide third side length
+     * @param currentSide an side we generate an angle size for greater than 0
+     * @param secondSide second side length greater than 0
+     * @param thirdSide third side length greater than 0
      * @return double in radians
      */
     public static double frontAngle(double currentSide, double secondSide, double thirdSide) {
+        if (currentSide <=0 || secondSide <= 0 || thirdSide <= 0)
+            throw new IllegalArgumentException("Стороны треугольника не могут быть отрицательной или нулевой длины");
+
         double cos = (secondSide * secondSide + thirdSide * thirdSide - currentSide * currentSide) / (2 * secondSide * thirdSide);
         return Math.acos(cos);
     }
