@@ -4,6 +4,7 @@ package ru.cft.focusstart.matrosov.model;
  * Enumeration for geometric figure types
  */
 public enum GeometricShapeType {
+
     TRIANGLE, CIRCLE, RECTANGLE, SQUARE;
 
     /**

@@ -1,6 +1,6 @@
 package ru.cft.focusstart.matrosov.model;
 
-import java.util.Map;
+import java.util.*;
 
 /**
  * Public interface for geometric fugures
@@ -23,9 +23,9 @@ public interface Geometric2DShape {
     /**
      * Method return the list of current shape's parameters
      *
-     * @return Map<String, Double> key-value map of shape parameters
+     * @return List of shape parameters
      */
-    public Map<String, Double> parameters();
+    public List<GeometricShapeProperty> parameters();
 
 
     /**

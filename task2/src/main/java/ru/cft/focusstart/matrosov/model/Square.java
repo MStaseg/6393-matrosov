@@ -2,9 +2,17 @@ package ru.cft.focusstart.matrosov.model;
 
 import java.util.*;
 
+/**
+ * Class-implementation of Geometric2DShape that describes an square
+ */
 public class Square implements Geometric2DShape {
+
     private double size;
 
+    /**
+     * Creates a rectangle instance from existing size
+     * @param size double
+     */
     public Square(double size) {
         if (size < 0)
             throw new IllegalArgumentException("Сторона квадрата не может быть отрицательной длины");
@@ -15,21 +23,33 @@ public class Square implements Geometric2DShape {
         return size;
     }
 
+    /**
+     * An double area value for square
+     * @return double
+     */
     @Override
     public double area() {
         return size * size;
     }
 
+    /**
+     * An double perimeter value for square
+     * @return double
+     */
     @Override
     public double perimeter() {
         return 4 * size;
     }
 
+    /**
+     * Return a list of all square properties
+     * @return List<GeometricShapeProperty>
+     */
     @Override
-    public Map<String, Double> parameters() {
-        Map<String, Double> map = new HashMap<>();
-        map.put("size", size);
-        return map;
+    public List<GeometricShapeProperty> parameters() {
+        List<GeometricShapeProperty> list = new LinkedList<>();
+        list.add(new GeometricShapeProperty("size", size));
+        return list;
     }
 
     @Override
