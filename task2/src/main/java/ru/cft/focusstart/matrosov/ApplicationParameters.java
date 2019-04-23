@@ -16,18 +16,23 @@ public class ApplicationParameters {
     }
 
     /**
-     * Use this method to set once the params got from the terminal while starting the program
+     * Use this method to set the params got from the terminal while starting the program
      * @param args String[] from command line
      */
     public void setInputParameters(String[] args) {
-        if (inputFilePath != null || outputFilePath != null)
+        if (inputFilePath != null)
             return;
 
         try {
             inputFilePath = args[0];
-            outputFilePath = args[1];
         } catch(ArrayIndexOutOfBoundsException e) {
             throw new IllegalArgumentException();
+        }
+
+        try {
+            outputFilePath = args[1];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            outputFilePath = null;
         }
     }
 

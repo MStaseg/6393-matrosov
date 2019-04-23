@@ -9,7 +9,12 @@ import java.io.*;
 import java.util.*;
 
 public abstract class FileDataOutputPrinter {
-
+    /**
+     * Prints the shape description into file
+     *
+     * @param shape Geometric2DShape
+     * @throws IOException
+     */
     public static void print(Geometric2DShape shape, String outputPath) throws IOException {
         if (shape == null || outputPath == null)
             return;
