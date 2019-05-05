@@ -3,35 +3,29 @@ package ru.cft.focusstart.matrosov.model;
 import java.util.*;
 
 /**
- * Public interface for geometric fugures
+ * Public interface for geometric shapes
  *
  */
 public interface Geometric2DShape {
 
     /**
      * The area figure occupies in geometric terms
-     * @return double
+     * @return double area value
      */
-    public double area();
+    double getArea();
 
     /**
      * Sum of all figure sides
-     * @return double
+     * @return double perimeter value
      */
-    public double perimeter();
+    double getPerimeter();
 
     /**
-     * Method return the list of current shape's parameters
+     * Method return the list of current shape's getParameters
      *
-     * @return List of shape parameters
+     * @return List of shape getParameters
      */
-    public List<GeometricShapeProperty> parameters();
+    List<GeometricShapeProperty> getParameters();
 
-
-    /**
-     * Return the enum tupe od current shape
-     *
-     * @return GeometricShapeType
-     */
-    GeometricShapeType type();
+    GeometricShapeType getType();
 }

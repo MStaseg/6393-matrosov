@@ -1,6 +1,10 @@
 package ru.cft.focusstart.matrosov.model;
 
+import ru.cft.focusstart.matrosov.exception.ShapeFormatException;
+
 import java.util.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * Class-implementation of Geometric2DShape that describes an rectangle
@@ -20,82 +24,63 @@ public class Triangle implements Geometric2DShape {
      */
     public Triangle(double firstSide, double secondSide, double thirdSide) {
         if (firstSide <= 0.0 || secondSide <= 0.0 || thirdSide <= 0.0)
-            throw new IllegalArgumentException("Сторона треугольника не может быть отрицательной или нулевой длины");
+            throw new ShapeFormatException("Сторона треугольника не может быть отрицательной или нулевой длины");
         if (firstSide + secondSide < thirdSide || firstSide + thirdSide < secondSide || secondSide + thirdSide < firstSide)
-            throw new IllegalArgumentException("Из заданных сторон невозможно составить треугольник");
+            throw new ShapeFormatException("Из заданных сторон невозможно составить треугольник");
 
         this.firstSize = firstSide;
         this.secondSize = secondSide;
         this.thirdSize = thirdSide;
     }
 
-    /**
-     * An double area value for triangle
-     * @return double
-     */
     @Override
-    public double area() {
-        double semiPerimeter = perimeter() / 2;
-        return Math.sqrt(semiPerimeter * (semiPerimeter - firstSize) * (semiPerimeter - secondSize) * (semiPerimeter - thirdSize));
+    public double getArea() {
+        double semiPerimeter = getPerimeter() / 2;
+        double sqrtValue
+                = semiPerimeter * (semiPerimeter - firstSize) * (semiPerimeter - secondSize) * (semiPerimeter - thirdSize);
+        return Math.sqrt(sqrtValue);
     }
 
-    /**
-     * An double perimeter value for triangle
-     * @return double
-     */
     @Override
-    public double perimeter() {
+    public double getPerimeter() {
         return firstSize + secondSize + thirdSize;
     }
 
-    /**
-     * Uses cosinus theorem to calculate an front angle value for current side. Returns value in radians
-     *
-     * @param currentSide an side we generate an angle size for greater than 0
-     * @param secondSide second side length greater than 0
-     * @param thirdSide third side length greater than 0
-     * @return double in radians
-     */
-    public static double frontAngle(double currentSide, double secondSide, double thirdSide) {
-        if (currentSide <=0 || secondSide <= 0 || thirdSide <= 0)
-            throw new IllegalArgumentException("Стороны треугольника не могут быть отрицательной или нулевой длины");
-
-        double cos = (secondSide * secondSide + thirdSide * thirdSide - currentSide * currentSide) / (2 * secondSide * thirdSide);
-        return Math.acos(cos);
-    }
-
-    /**
-     * Degree-based version of method returning value for front angle of the triangle side
-     *
-     * @param currentSide an side we generate an angle size for
-     * @param secondSide second side length
-     * @param thirdSide third side length
-     * @return double
-     */
-    public static double frontAngleDegrees(double currentSide, double secondSide, double thirdSide) {
-        return Math.toDegrees(Triangle.frontAngle(currentSide, secondSide, thirdSide));
-    }
-
-    /**
-     * Return a list of all triangle properties
-     * @return List<GeometricShapeProperty>
-     */
     @Override
-    public List<GeometricShapeProperty> parameters() {
-        List<GeometricShapeProperty> list = new LinkedList<>();
+    public List<GeometricShapeProperty> getParameters() {
+        List<GeometricShapeProperty> list = new ArrayList<>();
 
         list.add(new GeometricShapeProperty("firstSize", firstSize));
-        list.add(new GeometricShapeProperty("firstSizeFrontAngle", frontAngleDegrees(firstSize, secondSize, thirdSize)));
+        list.add(new GeometricShapeProperty("firstSizeFrontAngle",
+                getFrontAngleDegrees(firstSize, secondSize, thirdSize)));
         list.add(new GeometricShapeProperty("secondSize", secondSize));
-        list.add(new GeometricShapeProperty("secondSizeFrontAngle", frontAngleDegrees(secondSize, firstSize, thirdSize)));
+        list.add(new GeometricShapeProperty("secondSizeFrontAngle",
+                getFrontAngleDegrees(secondSize, firstSize, thirdSize)));
         list.add(new GeometricShapeProperty("thirdSize", thirdSize));
-        list.add(new GeometricShapeProperty("thirdSizeFrontAngle", frontAngleDegrees(thirdSize, firstSize, secondSize)));
+        list.add(new GeometricShapeProperty("thirdSizeFrontAngle",
+                getFrontAngleDegrees(thirdSize, firstSize, secondSize)));
 
         return list;
     }
 
+    private static double getFrontAngle(double currentSide, double secondSide, double thirdSide) {
+        if (currentSide <=0 || secondSide <= 0 || thirdSide <= 0) {
+            throw new IllegalArgumentException("Стороны треугольника не могут быть отрицательной или нулевой длины");
+        }
+
+        double cos = (secondSide * secondSide + thirdSide * thirdSide - currentSide * currentSide) /
+                (2 * secondSide * thirdSide);
+        return Math.acos(cos);
+    }
+
+    private static double getFrontAngleDegrees(double currentSide, double secondSide, double thirdSide) {
+        double faultValue = Math.toDegrees(Triangle.getFrontAngle(currentSide, secondSide, thirdSide));
+        BigDecimal bd = new BigDecimal(faultValue).setScale(2, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
+
     @Override
-    public GeometricShapeType type() {
+    public GeometricShapeType getType() {
         return GeometricShapeType.TRIANGLE;
     }
 

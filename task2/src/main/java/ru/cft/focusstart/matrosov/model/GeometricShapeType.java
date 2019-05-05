@@ -5,44 +5,21 @@ package ru.cft.focusstart.matrosov.model;
  */
 public enum GeometricShapeType {
 
-    TRIANGLE, CIRCLE, RECTANGLE, SQUARE;
+    TRIANGLE("triangle", 3), CIRCLE("circle", 1), RECTANGLE("rectangle", 2), SQUARE("square", 1);
 
-    /**
-     * Return russian description of each figure type
-     *
-     * @return String
-     */
-    public String description() {
-        switch(this) {
-            case TRIANGLE:
-                return "Треугольник";
-            case CIRCLE:
-                return "Круг";
-            case RECTANGLE:
-                return "Прямоугольник";
-            case SQUARE:
-                return "Квадрат";
-            default:
-                return "Неизвестная фигура";
-        }
+    private final String description;
+    private final int paramExpected;
+
+    GeometricShapeType(String description, int paramExpected) {
+        this.description = description;
+        this.paramExpected = paramExpected;
     }
 
-    /**
-     * Returns the shape type from string
-     *
-     * @param string from which is needed to get shape type
-     * @return GeometricShapeType
-     */
-    public static GeometricShapeType value(String string) {
-        if (string == null)
-            return null;
-        String stringLowerCase = string.toLowerCase();
-        switch (stringLowerCase) {
-            case "triangle": return GeometricShapeType.TRIANGLE;
-            case "circle": return GeometricShapeType.CIRCLE;
-            case "rectangle": return GeometricShapeType.RECTANGLE;
-            case "square": return GeometricShapeType.SQUARE;
-            default: return null;
-        }
+    public String getDescription() {
+        return description;
+    }
+
+    public int getParamExpected() {
+        return paramExpected;
     }
 }

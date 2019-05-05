@@ -8,7 +8,7 @@ public class GeometricShapeProperty {
     private String name;
     private double value;
 
-    public GeometricShapeProperty(String name, double value) {
+    GeometricShapeProperty(String name, double value) {
         if (name == null)
             throw new IllegalArgumentException();
         this.name = name;
@@ -21,5 +21,21 @@ public class GeometricShapeProperty {
 
     public double getValue() {
         return value;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof GeometricShapeProperty))
+            return false;
+
+        GeometricShapeProperty property = (GeometricShapeProperty)obj;
+        return this.value == property.value && this.name.equals(property.name);
+    }
+
+    @Override
+    public String toString() {
+        return "GeometricShapeProperty[name = " + name + ", value = " + value + "]";
     }
 }

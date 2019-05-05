@@ -1,16 +1,22 @@
 package ru.cft.focusstart.matrosov;
 
+import ru.cft.focusstart.matrosov.exception.ApplicationParametersException;
+
 import java.util.*;
 
 public class ApplicationParameters {
+
+    private static final String PROPERTY_FILE_NAME = "/application_ru.properties";
+    private static ApplicationParameters instance;
+
     private String inputFilePath;
     private String outputFilePath;
-
-    private static ApplicationParameters instance;
+    private Map<String, String> dictionary;
 
     public static synchronized ApplicationParameters getInstance() {
         if (instance == null) {
             instance = new ApplicationParameters();
+            instance.loadDictionaryFromFile();
         }
         return instance;
     }
@@ -19,60 +25,53 @@ public class ApplicationParameters {
      * Use this method to set the params got from the terminal while starting the program
      * @param args String[] from command line
      */
-    public void setInputParameters(String[] args) {
+    void setInputParameters(String[] args) throws ApplicationParametersException {
         if (inputFilePath != null)
             return;
 
-        try {
+        if (args.length >= 1) {
             inputFilePath = args[0];
-        } catch(ArrayIndexOutOfBoundsException e) {
-            throw new IllegalArgumentException();
+        } else {
+            throw new ApplicationParametersException("Не задан путь до исходного файла");
         }
 
-        try {
+        if (args.length >= 2) {
             outputFilePath = args[1];
-        } catch (ArrayIndexOutOfBoundsException e) {
-            outputFilePath = null;
         }
     }
 
-    /**
-     * Return a file path to the input file
-     * @return String
-     */
     public String getInputFilePath() {
         return inputFilePath;
     }
 
-    /**
-     * Returns a file path to output file
-     * @return String
-     */
     public String getOutputFilePath() {
         return outputFilePath;
     }
 
     /**
-     * Returns a dictionary with russian equivalents of output property names
-     * @return Map<Key, Value>
+     * This method translates an english word to other language if it exists in the property file
+     *
+     * @param key String, that should be translated
+     * @return translated word or string itself if not found
      */
-    public Map<String, String> dictionary() {
-        Map<String, String> dictionary = new HashMap<>();
+    public String getDictionaryValueByKey(String key) {
+        String value = dictionary.get(key);
+        return value != null ? value : key;
+    }
 
-        // TODO: Move it to json file
-        dictionary.put("radius", "Радиус");
-        dictionary.put("diameter", "Диаметр");
-        dictionary.put("width", "Ширина");
-        dictionary.put("height", "Высота");
-        dictionary.put("firstSize", "Первая сторона");
-        dictionary.put("firstSizeFrontAngle", "Угол, противолежащий первой стороне");
-        dictionary.put("secondSize", "Вторая сторона");
-        dictionary.put("secondSizeFrontAngle", "Угол, противолежащий второй стороне");
-        dictionary.put("thirdSize", "Третья сторона");
-        dictionary.put("thirdSizeFrontAngle", "Угол, противолежащий третьей стороне");
-        dictionary.put("size", "Размер");
-        dictionary.put("diagonal", "Диагональ");
+    private void loadDictionaryFromFile() {
+        dictionary = new HashMap<>();
 
-        return dictionary;
+        Properties properties = new Properties();
+        try {
+            properties.load(ApplicationParameters.class.getResourceAsStream(PROPERTY_FILE_NAME));
+        } catch (Exception e) {
+            System.out.println("Не удалось загрузить словарь из файла " + PROPERTY_FILE_NAME);
+        }
+
+        for (String key : properties.stringPropertyNames()) {
+            String value = properties.getProperty(key);
+            dictionary.put(key, value);
+        }
     }
 }

@@ -1,5 +1,7 @@
 package ru.cft.focusstart.matrosov.model;
 
+import ru.cft.focusstart.matrosov.exception.ShapeFormatException;
+
 import java.util.*;
 
 /**
@@ -11,49 +13,33 @@ public class Square implements Geometric2DShape {
 
     /**
      * Creates a rectangle instance from existing size
-     * @param size double
+     * @param size of square
      */
     public Square(double size) {
-        if (size < 0)
-            throw new IllegalArgumentException("Сторона квадрата не может быть отрицательной длины");
+        if (size <= 0)
+            throw new ShapeFormatException("Сторона квадрата не может быть отрицательной или нулевой длины");
         this.size = size;
     }
 
-    public double getSize() {
-        return size;
-    }
-
-    /**
-     * An double area value for square
-     * @return double
-     */
     @Override
-    public double area() {
+    public double getArea() {
         return size * size;
     }
 
-    /**
-     * An double perimeter value for square
-     * @return double
-     */
     @Override
-    public double perimeter() {
+    public double getPerimeter() {
         return 4 * size;
     }
 
-    /**
-     * Return a list of all square properties
-     * @return List<GeometricShapeProperty>
-     */
     @Override
-    public List<GeometricShapeProperty> parameters() {
-        List<GeometricShapeProperty> list = new LinkedList<>();
+    public List<GeometricShapeProperty> getParameters() {
+        List<GeometricShapeProperty> list = new ArrayList<>();
         list.add(new GeometricShapeProperty("size", size));
         return list;
     }
 
     @Override
-    public GeometricShapeType type() {
+    public GeometricShapeType getType() {
         return GeometricShapeType.SQUARE;
     }
 

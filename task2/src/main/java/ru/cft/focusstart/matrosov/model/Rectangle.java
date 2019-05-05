@@ -1,5 +1,7 @@
 package ru.cft.focusstart.matrosov.model;
 
+import ru.cft.focusstart.matrosov.exception.ShapeFormatException;
+
 import java.util.*;
 
 /**
@@ -12,64 +14,44 @@ public class Rectangle implements Geometric2DShape {
 
     /**
      * Creates an instance of rectangle with it's width and height
-     * @param width width of the rectangle
-     * @param height height of the rectangle
+     * @param firstSide width of the rectangle
+     * @param secondSide height of the rectangle
      */
-    public Rectangle(double width, double height) {
-        if (width < 0 || height < 0)
-            throw new IllegalArgumentException("Сторона прямоугольника не может быть отрицательной длины");
+    public Rectangle(double firstSide, double secondSide) {
+        if (firstSide <= 0 || secondSide <= 0)
+            throw new ShapeFormatException("Сторона прямоугольника не может быть отрицательной или нулевой длины");
 
-        if (width > height) {
-            this.width = width;
-            this.height = height;
-        } else {
-            this.width = height;
-            this.height = width;
-        }
+        this.width = Math.max(firstSide, secondSide);
+        this.height = Math.min(firstSide, secondSide);
     }
 
-    /**
-     * An double area value for rectangle
-     * @return double
-     */
     @Override
-    public double area() {
+    public double getArea() {
         return width * height;
     }
 
-    /**
-     * An double perimeter value for rectangle
-     * @return double
-     */
     @Override
-    public double perimeter() {
+    public double getPerimeter() {
         return (width + height) * 2;
     }
-    /**
-     * An double diagonal value for rectangle
-     * @return double
-     */
-    public double diagonal() {
+
+    private double getDiagonal() {
         return Math.sqrt(width * width + height * height);
     }
 
-    /**
-     * Return a list of all rectangle properties
-     * @return List<GeometricShapeProperty>
-     */
     @Override
-    public List<GeometricShapeProperty> parameters() {
-        List<GeometricShapeProperty> list = new LinkedList<>();
+    public List<GeometricShapeProperty> getParameters() {
+        List<GeometricShapeProperty> list = new ArrayList<>();
 
         list.add(new GeometricShapeProperty("width", width));
         list.add(new GeometricShapeProperty("height", height));
-        list.add(new GeometricShapeProperty("diagonal", diagonal()));
+        list.add(new GeometricShapeProperty("diagonal", getDiagonal()));
 
         return list;
     }
 
     @Override
-    public GeometricShapeType type() {
+    public GeometricShapeType getType() {
         return GeometricShapeType.RECTANGLE;
     }
 
