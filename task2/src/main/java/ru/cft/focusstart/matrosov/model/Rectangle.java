@@ -1,6 +1,7 @@
 package ru.cft.focusstart.matrosov.model;
 
 import ru.cft.focusstart.matrosov.exception.ShapeFormatException;
+import ru.cft.focusstart.matrosov.util.MathUtils;
 
 import java.util.*;
 
@@ -13,9 +14,11 @@ public class Rectangle implements Geometric2DShape {
     private double height;
 
     /**
-     * Creates an instance of rectangle with it's width and height
-     * @param firstSide width of the rectangle
-     * @param secondSide height of the rectangle
+     * Creates an instance of rectangle with it's width and height. You must pass two params. This constructor
+     * will take the biggest one and make it width then take the smallest and make in height
+     *
+     * @param firstSide of the rectangle greater than 0
+     * @param secondSide of the rectangle greater than 0
      */
     public Rectangle(double firstSide, double secondSide) {
         if (firstSide <= 0 || secondSide <= 0)
@@ -36,16 +39,17 @@ public class Rectangle implements Geometric2DShape {
     }
 
     private double getDiagonal() {
-        return Math.sqrt(width * width + height * height);
+        double fullValue = Math.sqrt(width * width + height * height);
+        return MathUtils.round(fullValue);
     }
 
     @Override
     public List<GeometricShapeProperty> getParameters() {
         List<GeometricShapeProperty> list = new ArrayList<>();
 
-        list.add(new GeometricShapeProperty("width", width));
-        list.add(new GeometricShapeProperty("height", height));
-        list.add(new GeometricShapeProperty("diagonal", getDiagonal()));
+        list.add(new GeometricShapeProperty(GeometricShapeParameter.WIDTH, width));
+        list.add(new GeometricShapeProperty(GeometricShapeParameter.HEIGHT, height));
+        list.add(new GeometricShapeProperty(GeometricShapeParameter.DIAGONAL, getDiagonal()));
 
         return list;
     }

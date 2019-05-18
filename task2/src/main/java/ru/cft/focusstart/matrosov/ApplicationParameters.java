@@ -6,12 +6,14 @@ import java.util.*;
 
 public class ApplicationParameters {
 
-    private static final String PROPERTY_FILE_NAME = "/application_ru.properties";
+    private static final String PROPERTY_FILE_NAME = "/shape_parameter_strings_ru.properties";
     private static ApplicationParameters instance;
 
     private String inputFilePath;
     private String outputFilePath;
     private Map<String, String> dictionary;
+
+    private ApplicationParameters() {}
 
     public static synchronized ApplicationParameters getInstance() {
         if (instance == null) {

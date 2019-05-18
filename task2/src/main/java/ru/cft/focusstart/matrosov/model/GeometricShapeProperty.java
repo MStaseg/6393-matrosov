@@ -5,18 +5,18 @@ package ru.cft.focusstart.matrosov.model;
  */
 public class GeometricShapeProperty {
 
-    private String name;
+    private GeometricShapeParameter parameter;
     private double value;
 
-    GeometricShapeProperty(String name, double value) {
-        if (name == null)
+    GeometricShapeProperty(GeometricShapeParameter parameter, double value) {
+        if (parameter == null)
             throw new IllegalArgumentException();
-        this.name = name;
+        this.parameter = parameter;
         this.value = value;
     }
 
-    public String getName() {
-        return name;
+    public GeometricShapeParameter getParameter() {
+        return parameter;
     }
 
     public double getValue() {
@@ -31,11 +31,11 @@ public class GeometricShapeProperty {
             return false;
 
         GeometricShapeProperty property = (GeometricShapeProperty)obj;
-        return this.value == property.value && this.name.equals(property.name);
+        return this.value == property.value && this.parameter.equals(property.parameter);
     }
 
     @Override
     public String toString() {
-        return "GeometricShapeProperty[name = " + name + ", value = " + value + "]";
+        return "GeometricShapeProperty[parameter = " + parameter + ", value = " + value + "]";
     }
 }

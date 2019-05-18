@@ -13,7 +13,7 @@ public class Square implements Geometric2DShape {
 
     /**
      * Creates a rectangle instance from existing size
-     * @param size of square
+     * @param size of square greater than 0
      */
     public Square(double size) {
         if (size <= 0)
@@ -34,7 +34,7 @@ public class Square implements Geometric2DShape {
     @Override
     public List<GeometricShapeProperty> getParameters() {
         List<GeometricShapeProperty> list = new ArrayList<>();
-        list.add(new GeometricShapeProperty("size", size));
+        list.add(new GeometricShapeProperty(GeometricShapeParameter.SIZE, size));
         return list;
     }
 

@@ -7,16 +7,16 @@ public enum GeometricShapeType {
 
     TRIANGLE("triangle", 3), CIRCLE("circle", 1), RECTANGLE("rectangle", 2), SQUARE("square", 1);
 
-    private final String description;
+    private final String name;
     private final int paramExpected;
 
-    GeometricShapeType(String description, int paramExpected) {
-        this.description = description;
+    GeometricShapeType(String name, int paramExpected) {
+        this.name = name;
         this.paramExpected = paramExpected;
     }
 
-    public String getDescription() {
-        return description;
+    public String getName() {
+        return name;
     }
 
     public int getParamExpected() {

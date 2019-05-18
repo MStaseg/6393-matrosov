@@ -1,13 +1,14 @@
 package ru.cft.focusstart.matrosov.model;
 
 import ru.cft.focusstart.matrosov.exception.ShapeFormatException;
+import ru.cft.focusstart.matrosov.util.MathUtils;
 
 import java.util.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
- * Class-implementation of Geometric2DShape that describes an rectangle
+ * Class-implementation of Geometric2DShape that describes an triangle
  */
 public class Triangle implements Geometric2DShape {
 
@@ -18,9 +19,9 @@ public class Triangle implements Geometric2DShape {
     /**
      * Creates an implementation of triangle with three existing size of sides
      *
-     * @param firstSide first side size value
-     * @param secondSide second side size value
-     * @param thirdSide third side size value
+     * @param firstSide first side size value greater than 0
+     * @param secondSide second side size value greater than 0
+     * @param thirdSide third side size value greater than 0
      */
     public Triangle(double firstSide, double secondSide, double thirdSide) {
         if (firstSide <= 0.0 || secondSide <= 0.0 || thirdSide <= 0.0)
@@ -50,14 +51,14 @@ public class Triangle implements Geometric2DShape {
     public List<GeometricShapeProperty> getParameters() {
         List<GeometricShapeProperty> list = new ArrayList<>();
 
-        list.add(new GeometricShapeProperty("firstSize", firstSize));
-        list.add(new GeometricShapeProperty("firstSizeFrontAngle",
+        list.add(new GeometricShapeProperty(GeometricShapeParameter.FIRST_SIDE, firstSize));
+        list.add(new GeometricShapeProperty(GeometricShapeParameter.FIRST_SIDE_FRONT_ANGLE,
                 getFrontAngleDegrees(firstSize, secondSize, thirdSize)));
-        list.add(new GeometricShapeProperty("secondSize", secondSize));
-        list.add(new GeometricShapeProperty("secondSizeFrontAngle",
+        list.add(new GeometricShapeProperty(GeometricShapeParameter.SECOND_SIDE, secondSize));
+        list.add(new GeometricShapeProperty(GeometricShapeParameter.SECOND_SIDE_FRONT_ANGLE,
                 getFrontAngleDegrees(secondSize, firstSize, thirdSize)));
-        list.add(new GeometricShapeProperty("thirdSize", thirdSize));
-        list.add(new GeometricShapeProperty("thirdSizeFrontAngle",
+        list.add(new GeometricShapeProperty(GeometricShapeParameter.THIRD_SIDE, thirdSize));
+        list.add(new GeometricShapeProperty(GeometricShapeParameter.THIRD_SIDE_FRONT_ANGLE,
                 getFrontAngleDegrees(thirdSize, firstSize, secondSize)));
 
         return list;
@@ -74,9 +75,8 @@ public class Triangle implements Geometric2DShape {
     }
 
     private static double getFrontAngleDegrees(double currentSide, double secondSide, double thirdSide) {
-        double faultValue = Math.toDegrees(Triangle.getFrontAngle(currentSide, secondSide, thirdSide));
-        BigDecimal bd = new BigDecimal(faultValue).setScale(2, RoundingMode.HALF_UP);
-        return bd.doubleValue();
+        double degreesFullValue = Math.toDegrees(getFrontAngle(currentSide, secondSide, thirdSide));
+        return MathUtils.round(degreesFullValue);
     }
 
     @Override

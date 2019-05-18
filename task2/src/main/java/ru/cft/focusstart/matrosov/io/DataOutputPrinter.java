@@ -3,6 +3,7 @@ package ru.cft.focusstart.matrosov.io;
 import ru.cft.focusstart.matrosov.ApplicationParameters;
 import ru.cft.focusstart.matrosov.exception.DataOutputException;
 import ru.cft.focusstart.matrosov.model.Geometric2DShape;
+import ru.cft.focusstart.matrosov.model.GeometricShapeParameter;
 import ru.cft.focusstart.matrosov.model.GeometricShapeProperty;
 
 import java.io.*;
@@ -21,9 +22,9 @@ public final class DataOutputPrinter {
     public static void print(Geometric2DShape shape) throws DataOutputException {
         String outputPath = ApplicationParameters.getInstance().getOutputFilePath();
         if (outputPath == null) {
-            DataOutputPrinter.print(shape, System.out);
+            print(shape, System.out);
         } else {
-            DataOutputPrinter.print(shape, outputPath);
+            print(shape, outputPath);
         }
     }
 
@@ -36,17 +37,10 @@ public final class DataOutputPrinter {
      */
     private static void print(Geometric2DShape shape, String outputPath) throws DataOutputException {
         File outputFile = new File(outputPath);
-        try {
-            outputFile.createNewFile();
-        } catch (SecurityException e) {
-            throw new DataOutputException("Невозможно создать файл из за настроек безопасности", e);
-        } catch (IOException e) {
-            throw new DataOutputException("Ошибка потока вывода", e);
-        }
 
         try(OutputStream fileOS = new FileOutputStream(outputFile, false)) {
             PrintStream printStream = new PrintStream(fileOS);
-            DataOutputPrinter.print(shape, printStream);
+            print(shape, printStream);
         } catch (FileNotFoundException e) {
             throw new DataOutputException("Файл " + outputPath + " не найден", e);
         } catch (IOException e) {
@@ -63,15 +57,16 @@ public final class DataOutputPrinter {
     private static void print(Geometric2DShape shape, PrintStream printer) {
         ApplicationParameters parameters = ApplicationParameters.getInstance();
 
-        String shapeDescription = shape.getType().getDescription();
-        printer.println(parameters.getDictionaryValueByKey("shapeType") +
-                ": " + parameters.getDictionaryValueByKey(shapeDescription));
-        printer.println(parameters.getDictionaryValueByKey("perimeter") + ": " + shape.getPerimeter());
-        printer.println(parameters.getDictionaryValueByKey("area") + ": " + shape.getArea());
+        printer.println(parameters.getDictionaryValueByKey(GeometricShapeParameter.TYPE.getName()) +
+                ": " + parameters.getDictionaryValueByKey(shape.getType().getName()));
+        printer.println(parameters.getDictionaryValueByKey(GeometricShapeParameter.PERIMETER.getName()) +
+                ": " + shape.getPerimeter());
+        printer.println(parameters.getDictionaryValueByKey(GeometricShapeParameter.AREA.getName()) +
+                ": " + shape.getArea());
 
         List<GeometricShapeProperty> properties = shape.getParameters();
         for (GeometricShapeProperty property: properties) {
-            String key = parameters.getDictionaryValueByKey(property.getName());
+            String key = parameters.getDictionaryValueByKey(property.getParameter().getName());
             printer.println(key + ": " + property.getValue());
         }
     }
