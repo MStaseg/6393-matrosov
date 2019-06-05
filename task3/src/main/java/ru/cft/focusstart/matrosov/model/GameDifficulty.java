@@ -1,4 +1,4 @@
-package model;
+package ru.cft.focusstart.matrosov.model;
 
 public enum GameDifficulty {
     EASY(10, 9, 9), NORMAL(40, 16, 16), PROFESSIONAL(99, 30, 16);
