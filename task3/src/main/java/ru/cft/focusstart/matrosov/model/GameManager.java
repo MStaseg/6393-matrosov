@@ -1,7 +1,5 @@
 package ru.cft.focusstart.matrosov.model;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import ru.cft.focusstart.matrosov.exception.IllegalGameParametersException;
 import ru.cft.focusstart.matrosov.observer.GameInstanceObserver;
 
@@ -37,16 +35,6 @@ public class GameManager {
 
     public void startNewGame(int width, int height, int minesCount) throws IllegalGameParametersException {
         this.game = new Game(width, height, minesCount);
-        try {
-            Properties properties = new Properties();
-            properties.load(this.getClass().getResourceAsStream("/game_settings.properties"));
-            PropertiesConfiguration config = new PropertiesConfiguration(this.getClass().getResource("/game_settings.properties"));
-            properties.setProperty("lastWidth", "1234");
-            System.out.println(width);
-            config.save();
-        } catch (ConfigurationException | IOException e) {
-            e.printStackTrace();
-        }
         gameInstanceObservers.forEach(observer -> observer.onNewGame());
     }
 

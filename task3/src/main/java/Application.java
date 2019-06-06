@@ -8,7 +8,7 @@ import java.util.TreeSet;
 
 public class Application {
     public static void main(String[] args) throws IllegalGameParametersException {
-        GameManager.getInstance().startNewGame(GameDifficulty.NORMAL);
+        //GameManager.getInstance().startNewGame(GameDifficulty.NORMAL);
         new GameController();
     }
 }

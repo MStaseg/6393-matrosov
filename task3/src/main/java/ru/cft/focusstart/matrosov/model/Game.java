@@ -1,13 +1,13 @@
 package ru.cft.focusstart.matrosov.model;
 
 import ru.cft.focusstart.matrosov.exception.IllegalGameParametersException;
-import ru.cft.focusstart.matrosov.observer.GameCellsObserver;
 import ru.cft.focusstart.matrosov.observer.GameStatusObserver;
+import ru.cft.focusstart.matrosov.observer.TimePastObserver;
 import ru.cft.focusstart.matrosov.util.Coordinates;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import javax.swing.Timer;
 
 /**
  * Class representing an instance of Mine Sweeper game
@@ -22,16 +22,17 @@ public class Game {
     private GameField gameField;
 
     private Set<GameStatusObserver> statusObservers;
+    private Set<TimePastObserver> timeObservers;
 
-    private Game() {
-        this.start = System.currentTimeMillis();
-        this.status = GameStatus.PLAYING;
-        statusObservers = new HashSet<>();
-    }
+    private Timer gameTimer;
 
     Game(int width, int height, int minesCount) throws IllegalGameParametersException {
-        this();
+        this.status = GameStatus.PLAYING;
+        statusObservers = new HashSet<>();
+        timeObservers = new HashSet<>();
         gameField = new GameField(width, height, minesCount);
+        this.start = System.currentTimeMillis();
+        startGameTimer();
     }
 
     public GameField getGameField() {
@@ -76,11 +77,21 @@ public class Game {
         refreshStatus();
     }
 
+    private void startGameTimer() {
+        gameTimer = new Timer(1000, e -> {
+            long millis = System.currentTimeMillis() - start;
+            timeObservers.forEach(observer -> observer.timePastChanged((int)millis / 1000));
+        });
+        gameTimer.start();
+    }
+
     private void refreshStatus() {
         if (status == GameStatus.FAILED) {
             gameField.prepareLooseField();
+            gameTimer.stop();
         } else if (status == GameStatus.WON) {
             gameField.prepareVictoryField();
+            gameTimer.stop();
         }
 
         statusObservers.forEach(observer -> observer.onStatusChanged(status));
@@ -92,6 +103,14 @@ public class Game {
 
     public void removeStatusObserver(GameStatusObserver observer) {
         statusObservers.remove(observer);
+    }
+
+    public void addTimeObserver(TimePastObserver observer) {
+        timeObservers.add(observer);
+    }
+
+    public void removeTimeObserver(TimePastObserver observer) {
+        timeObservers.remove(observer);
     }
 
     @Override

@@ -12,6 +12,7 @@ public class MainStateButton extends JButton implements GameStatusObserver {
 
     public MainStateButton() {
         setStatus(GameStatus.PLAYING);
+        setPreferredSize(new Dimension(size,size));
     }
 
     private void setStatus(GameStatus status) {
@@ -28,6 +29,7 @@ public class MainStateButton extends JButton implements GameStatusObserver {
         }
 
         ImageIcon icon = ImageUtils.getImageIcon(iconPath);
+        System.out.println(icon.getImage());
         //icon = ImageUtils.resizeImageIcon(icon, size, size);
         setIcon(icon);
     }

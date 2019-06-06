@@ -16,6 +16,7 @@ public class GameController extends JFrame implements GameInstanceObserver {
     private GameStateController stateController;
 
     public GameController() {
+        GameManager.getInstance().startNewGame(GameDifficulty.EASY);
         initMenu();
         initState();
         initFrame();

@@ -21,10 +21,10 @@ public class GameFieldController extends JPanel implements GameCellsObserver, Ga
     private int width;
     private int height;
 
-    Cell cells[][];
+    private Cell[][] cells;
 
-    boolean leftButtonHold = false;
-    boolean rightButtonHold = false;
+    private boolean leftButtonHold = false;
+    private boolean rightButtonHold = false;
 
     GameFieldController(int width, int height) {
         this.width = width;
@@ -45,53 +45,7 @@ public class GameFieldController extends JPanel implements GameCellsObserver, Ga
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 Cell cell = new Cell(CellType.CLOSED, CELL_SIZE);
-                cell.addMouseListener(new MouseListener() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        int button = e.getButton();
-                        if (button == 1) {
-                            handleCellOpening(e);
-                        } else if (button == 3) {
-                            handleSettingFlag(e);
-                        }
-                    }
-
-                    @Override
-                    public void mousePressed(MouseEvent e) {
-                        int button = e.getButton();
-                        if (button == 1) {
-                            leftButtonHold = true;
-                        } else if (button == 3 && leftButtonHold) {
-                            rightButtonHold = true;
-                            startForceCheck(e);
-                        }
-                    }
-
-                    @Override
-                    public void mouseReleased(MouseEvent e) {
-                        int button = e.getButton();
-                        if (button == 1 && rightButtonHold) {
-                            leftButtonHold = false;
-                            rightButtonHold = false;
-                            endForceCheck(e);
-                        } else if (button == 3 && leftButtonHold && rightButtonHold) {
-                            rightButtonHold = false;
-                            endForceCheck(e);
-                        } else if (button == 1) {
-                            leftButtonHold = false;
-                        }
-                    }
-
-                    @Override
-                    public void mouseEntered(MouseEvent e) {
-
-                    }
-
-                    @Override
-                    public void mouseExited(MouseEvent e) {
-
-                    }
-                });
+                addCellMouseListener(cell);
                 cells[i][j] = cell;
                 add(cell);
             }
@@ -141,12 +95,54 @@ public class GameFieldController extends JPanel implements GameCellsObserver, Ga
         return new Coordinates(x, y);
     }
 
-    private ImageIcon getImageIcon(String name) {
-        String fileName = "/images/" + name + ".png";
-        ImageIcon icon = new ImageIcon(getClass().getResource(fileName));
-        Image newImage = icon.getImage().getScaledInstance(width, height,  Image.SCALE_SMOOTH ) ;
-        icon = new ImageIcon(newImage);
-        return icon;
+    private void addCellMouseListener(Cell cell) {
+        cell.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int button = e.getButton();
+                if (button == 1) {
+                    handleCellOpening(e);
+                } else if (button == 3) {
+                    handleSettingFlag(e);
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                int button = e.getButton();
+                if (button == 1) {
+                    leftButtonHold = true;
+                } else if (button == 3 && leftButtonHold) {
+                    rightButtonHold = true;
+                    startForceCheck(e);
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                int button = e.getButton();
+                if (button == 1 && rightButtonHold) {
+                    leftButtonHold = false;
+                    rightButtonHold = false;
+                    endForceCheck(e);
+                } else if (button == 3 && leftButtonHold && rightButtonHold) {
+                    rightButtonHold = false;
+                    endForceCheck(e);
+                } else if (button == 1) {
+                    leftButtonHold = false;
+                }
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
     }
 
     @Override
