@@ -1,6 +1,7 @@
 package ru.cft.focusstart.matrosov.model;
 
 import ru.cft.focusstart.matrosov.exception.IllegalGameParametersException;
+import ru.cft.focusstart.matrosov.observer.GameCellsObserver;
 import ru.cft.focusstart.matrosov.observer.GameStatusObserver;
 import ru.cft.focusstart.matrosov.util.Coordinates;
 
@@ -14,18 +15,16 @@ import java.util.Set;
  */
 public class Game {
 
-    private Date start;
+    private long start;
 
     private GameStatus status;
 
     private GameField gameField;
 
-    private long playIntervalCacheLength;
-
     private Set<GameStatusObserver> statusObservers;
 
     private Game() {
-        this.start = new Date();
+        this.start = System.currentTimeMillis();
         this.status = GameStatus.PLAYING;
         statusObservers = new HashSet<>();
     }
@@ -57,13 +56,7 @@ public class Game {
         }
 
         this.status = gameField.openCell(c);
-        if (status == GameStatus.FAILED) {
-            gameField.prepareLooseField();
-        } else if (status == GameStatus.WON) {
-            gameField.prepareVictoryField();
-        }
-
-        statusObservers.forEach(observer -> observer.onStatusChanged(status));
+        refreshStatus();
     }
 
     public void setFlag(Coordinates c) {
@@ -79,7 +72,26 @@ public class Game {
             return;
         }
 
-        gameField.forceCheck(c);
+        this.status = gameField.forceCheck(c);
+        refreshStatus();
+    }
+
+    private void refreshStatus() {
+        if (status == GameStatus.FAILED) {
+            gameField.prepareLooseField();
+        } else if (status == GameStatus.WON) {
+            gameField.prepareVictoryField();
+        }
+
+        statusObservers.forEach(observer -> observer.onStatusChanged(status));
+    }
+
+    public void addStatusObserver(GameStatusObserver observer) {
+        statusObservers.add(observer);
+    }
+
+    public void removeStatusObserver(GameStatusObserver observer) {
+        statusObservers.remove(observer);
     }
 
     @Override
@@ -87,7 +99,6 @@ public class Game {
         return "Game{" +
                 "start=" + start +
                 ", status=" + status +
-                ", playIntervalCacheLength=" + playIntervalCacheLength +
                 '}';
     }
 }

@@ -3,6 +3,7 @@ package ru.cft.focusstart.matrosov.contoller;
 import ru.cft.focusstart.matrosov.model.*;
 import ru.cft.focusstart.matrosov.model.GameManager;
 import ru.cft.focusstart.matrosov.observer.GameCellsObserver;
+import ru.cft.focusstart.matrosov.observer.GameStatusObserver;
 import ru.cft.focusstart.matrosov.util.Coordinates;
 import ru.cft.focusstart.matrosov.view.Cell;
 
@@ -13,7 +14,7 @@ import java.awt.event.MouseListener;
 import java.util.LinkedList;
 import java.util.List;
 
-public class GameFieldController extends JPanel implements GameCellsObserver {
+public class GameFieldController extends JPanel implements GameCellsObserver, GameStatusObserver {
 
     private static final int CELL_SIZE = 20;
 
@@ -36,6 +37,7 @@ public class GameFieldController extends JPanel implements GameCellsObserver {
         fillGameField();
 
         GameManager.getInstance().getGame().getGameField().addCellsObserver(this);
+        GameManager.getInstance().getGame().addStatusObserver(this);
     }
 
     private void fillGameField() {
@@ -142,7 +144,7 @@ public class GameFieldController extends JPanel implements GameCellsObserver {
     private ImageIcon getImageIcon(String name) {
         String fileName = "/images/" + name + ".png";
         ImageIcon icon = new ImageIcon(getClass().getResource(fileName));
-        Image newImage = icon.getImage().getScaledInstance(width, height,  java.awt.Image.SCALE_SMOOTH ) ;
+        Image newImage = icon.getImage().getScaledInstance(width, height,  Image.SCALE_SMOOTH ) ;
         icon = new ImageIcon(newImage);
         return icon;
     }
@@ -167,5 +169,16 @@ public class GameFieldController extends JPanel implements GameCellsObserver {
         }
 
         return result;
+    }
+
+    @Override
+    public void onStatusChanged(GameStatus status) {
+        if (status != GameStatus.PLAYING) {
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    cells[i][j].setEnabled(false);
+                }
+            }
+        }
     }
 }

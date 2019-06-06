@@ -13,9 +13,11 @@ public class GameController extends JFrame implements GameInstanceObserver {
 
     private GameFieldController fieldController;
     private GameMenuController menuController;
+    private GameStateController stateController;
 
     public GameController() {
         initMenu();
+        initState();
         initFrame();
         loadGameField();
         GameManager.getInstance().addGameInstanceObserver(this);
@@ -24,6 +26,14 @@ public class GameController extends JFrame implements GameInstanceObserver {
     private void initMenu() {
         menuController = new GameMenuController();
         setJMenuBar(menuController);
+    }
+
+    private void initState() {
+        if (stateController != null) {
+            remove(stateController);
+        }
+        stateController = new GameStateController();
+        add(stateController, BorderLayout.NORTH);
     }
 
     private void initFrame() {
@@ -49,10 +59,12 @@ public class GameController extends JFrame implements GameInstanceObserver {
 
         try {
             fieldController = new GameFieldController(game.getWidth(), game.getHeight());
-            add(fieldController);
+            add(fieldController, BorderLayout.SOUTH);
         } catch (IllegalGameParametersException e) {
             System.out.println("Ошибка при создании игры" + e.getMessage());
         }
+
+        initState();
 
         pack();
     }

@@ -2,6 +2,7 @@ package ru.cft.focusstart.matrosov.model;
 
 import ru.cft.focusstart.matrosov.exception.IllegalGameParametersException;
 import ru.cft.focusstart.matrosov.observer.GameCellsObserver;
+import ru.cft.focusstart.matrosov.observer.MinesLeftObserver;
 import ru.cft.focusstart.matrosov.util.Coordinates;
 
 import java.util.*;
@@ -19,6 +20,7 @@ public class GameField {
     private Set<Coordinates> openedCoordinates;
 
     private Set<GameCellsObserver> cellsObservers;
+    private Set<MinesLeftObserver> minesLeftObservers;
 
     GameField(int width, int height, int minesCount) throws IllegalGameParametersException {
         if (width < 9 || height < 9) {
@@ -37,8 +39,11 @@ public class GameField {
         openedCoordinates = new HashSet<>();
 
         cellsObservers = new HashSet<>();
+        minesLeftObservers = new HashSet<>();
 
         generateInnerGameField();
+
+        minesLeftObservers.forEach(observer -> observer.minesLeftChanged(minesCount));
     }
 
     int getWidth() {
@@ -63,6 +68,14 @@ public class GameField {
 
     public void removeCellsObserver(GameCellsObserver observer) {
         cellsObservers.remove(observer);
+    }
+
+    public void addMinesLeftObserver(MinesLeftObserver observer) {
+        minesLeftObservers.add(observer);
+    }
+
+    public void removeMinesLeftObserver(MinesLeftObserver observer) {
+        minesLeftObservers.remove(observer);
     }
 
     GameStatus openCell(Coordinates c) {
@@ -115,9 +128,11 @@ public class GameField {
         List<CellMessage> refreshCells = new ArrayList<>();
         refreshCells.add(new CellMessage(c, type));
         cellsObservers.forEach(observer -> observer.onCellsChanged(refreshCells));
+
+        minesLeftObservers.forEach(observer -> observer.minesLeftChanged(minesCount - flagCoordinates.size()));
     }
 
-    void forceCheck(Coordinates c) {
+    GameStatus forceCheck(Coordinates c) {
         CellType type = cells[c.getY()][c.getX()];
         List<Coordinates> coordinates = getAroundCoordinates(c);
         int flagCount = 0;
@@ -131,10 +146,15 @@ public class GameField {
         if (flagCount == type.getNumberOfMinesAround()) {
             for (Coordinates coordinate: coordinates) {
                 if (!openedCoordinates.contains(coordinate)) {
-                    openCell(coordinate);
+                    GameStatus status = openCell(coordinate);
+                    if (status == GameStatus.FAILED || status == GameStatus.WON) {
+                        return status;
+                    }
                 }
             }
         }
+
+        return GameStatus.PLAYING;
     }
 
 
