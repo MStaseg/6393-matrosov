@@ -6,9 +6,9 @@ import ru.cft.focusstart.matrosov.observer.MinesLeftObserver;
 import ru.cft.focusstart.matrosov.util.Coordinates;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class GameField {
+
     private int width;
     private int height;
 
@@ -19,14 +19,14 @@ public class GameField {
     private Set<Coordinates> flagCoordinates;
     private Set<Coordinates> openedCoordinates;
 
-    private Set<GameCellsObserver> cellsObservers;
-    private Set<MinesLeftObserver> minesLeftObservers;
+    private List<GameCellsObserver> cellsObservers;
+    private List<MinesLeftObserver> minesLeftObservers;
 
     GameField(int width, int height, int minesCount) throws IllegalGameParametersException {
         if (width < 9 || height < 9) {
-            throw new IllegalGameParametersException("Minimum value of width and height should be 9");
+            throw new IllegalGameParametersException("Минимальные значения ширины и высоты игры равны 9");
         } else if (minesCount >= width * height) {
-            throw new IllegalGameParametersException("Too many mines on the field with current width and height");
+            throw new IllegalGameParametersException("Слишком много мин для поля заданной ширины");
         }
 
         this.width = width;
@@ -38,8 +38,8 @@ public class GameField {
         flagCoordinates = new HashSet<>();
         openedCoordinates = new HashSet<>();
 
-        cellsObservers = new HashSet<>();
-        minesLeftObservers = new HashSet<>();
+        cellsObservers = new ArrayList<>();
+        minesLeftObservers = new ArrayList<>();
 
         generateInnerGameField();
 
@@ -54,12 +54,8 @@ public class GameField {
         return height;
     }
 
-    public int getMinesCount() {
+    int getMinesCount() {
         return minesCount;
-    }
-
-    public CellType[][] getCells() {
-        return cells;
     }
 
     public void addCellsObserver(GameCellsObserver observer) {
@@ -76,6 +72,36 @@ public class GameField {
 
     public void removeMinesLeftObserver(MinesLeftObserver observer) {
         minesLeftObservers.remove(observer);
+    }
+
+    private void generateInnerGameField() {
+        List<Coordinates> possibleMines = new ArrayList<>(width * height);
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                cells[i][j] = CellType.EMPTY;
+                possibleMines.add(new Coordinates(j, i));
+            }
+        }
+
+        Random rand = new Random();
+        for (int i = 0; i < minesCount; i++) {
+            Coordinates coordinates = possibleMines.remove(rand.nextInt(possibleMines.size() - 1));
+            placeMine(coordinates);
+        }
+    }
+
+    private void placeMine(Coordinates c) {
+        cells[c.getY()][c.getX()] = CellType.BOMB;
+        increaseMinesCountAround(c);
+    }
+
+    private void increaseMinesCountAround(Coordinates c) {
+        List<Coordinates> coordinates = getAroundCoordinates(c);
+
+        for (Coordinates item: coordinates) {
+            cells[item.getY()][item.getX()]
+                    = cells[item.getY()][item.getX()].getNextNumberCell();
+        }
     }
 
     GameStatus openCell(Coordinates c) {
@@ -99,7 +125,6 @@ public class GameField {
         }
 
         for (Coordinates coordinate: opened) {
-            System.out.println(cells[coordinate.getY()][coordinate.getX()]);
             refreshCells.add(new CellMessage(coordinate, cells[coordinate.getY()][coordinate.getX()]));
         }
         cellsObservers.forEach(observer -> observer.onCellsChanged(refreshCells));
@@ -156,7 +181,6 @@ public class GameField {
 
         return GameStatus.PLAYING;
     }
-
 
     void prepareLooseField() {
         List<CellMessage> refreshCells = new ArrayList<>();
@@ -236,36 +260,6 @@ public class GameField {
             if (currentType == CellType.EMPTY) {
                 openEmptyCell(coordinate, opened);
             }
-        }
-    }
-
-    private void generateInnerGameField() {
-        List<Coordinates> possibleMines = new ArrayList<>(width * height);
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                cells[i][j] = CellType.EMPTY;
-                possibleMines.add(new Coordinates(j, i));
-            }
-        }
-
-        Random rand = new Random();
-        for (int i = 0; i < minesCount; i++) {
-            Coordinates coordinates = possibleMines.remove(rand.nextInt(possibleMines.size() - 1));
-            placeMine(coordinates);
-        }
-    }
-
-    private void placeMine(Coordinates c) {
-        cells[c.getY()][c.getX()] = CellType.BOMB;
-        increaseMinesCountAround(c);
-    }
-
-    private void increaseMinesCountAround(Coordinates c) {
-        List<Coordinates> coordinates = getAroundCoordinates(c);
-
-        for (Coordinates item: coordinates) {
-            cells[item.getY()][item.getX()]
-                    = cells[item.getY()][item.getX()].getNextNumberCell();
         }
     }
 
