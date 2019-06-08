@@ -14,6 +14,9 @@ import java.awt.event.MouseListener;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Controller represents the instance of game fields as table with the cells and appropriate actions
+ */
 public class GameFieldController extends JPanel implements GameCellsObserver, GameStatusObserver {
 
     private static final int CELL_SIZE = 20;
@@ -26,6 +29,12 @@ public class GameFieldController extends JPanel implements GameCellsObserver, Ga
     private boolean leftButtonHold = false;
     private boolean rightButtonHold = false;
 
+    /**
+     * Initiates an instance of game field with existing game width and height. Fills with closed cells first.
+     *
+     * @param width of the game
+     * @param height of the game
+     */
     GameFieldController(int width, int height) {
         this.width = width;
         this.height = height;
@@ -121,27 +130,24 @@ public class GameFieldController extends JPanel implements GameCellsObserver, Ga
             @Override
             public void mouseReleased(MouseEvent e) {
                 int button = e.getButton();
-                if (button == 1 && rightButtonHold) {
+                if (button == 1) {
                     leftButtonHold = false;
+                    if (rightButtonHold) {
+                        rightButtonHold = false;
+                        endForceCheck(e);
+                    }
+                }
+                if (button == 3 && leftButtonHold && rightButtonHold) {
                     rightButtonHold = false;
                     endForceCheck(e);
-                } else if (button == 3 && leftButtonHold && rightButtonHold) {
-                    rightButtonHold = false;
-                    endForceCheck(e);
-                } else if (button == 1) {
-                    leftButtonHold = false;
                 }
             }
 
             @Override
-            public void mouseEntered(MouseEvent e) {
-
-            }
+            public void mouseEntered(MouseEvent e) {}
 
             @Override
-            public void mouseExited(MouseEvent e) {
-
-            }
+            public void mouseExited(MouseEvent e) {}
         });
     }
 

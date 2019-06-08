@@ -3,19 +3,21 @@ package ru.cft.focusstart.matrosov.model;
 import ru.cft.focusstart.matrosov.exception.IllegalGameParametersException;
 import ru.cft.focusstart.matrosov.observer.GameInstanceObserver;
 
-import java.io.IOException;
 import java.util.*;
 
+/**
+ * Class-singleton to manage and persist the current game instance
+ */
 public class GameManager {
 
     private static GameManager instance;
 
     private Game game;
 
-    private Set<GameInstanceObserver> gameInstanceObservers;
+    private List<GameInstanceObserver> gameInstanceObservers;
 
     private GameManager() {
-        gameInstanceObservers = new HashSet<>();
+        gameInstanceObservers = new ArrayList<>();
     }
 
     public static synchronized GameManager getInstance() {
@@ -30,12 +32,13 @@ public class GameManager {
     }
 
     public void startNewGame(GameDifficulty difficulty) throws IllegalGameParametersException {
-        startNewGame(difficulty.getWidth(), difficulty.getHeight(), difficulty.getNumberOfMines());
+        this.game = new Game(difficulty);
+        gameInstanceObservers.forEach(GameInstanceObserver::onNewGame);
     }
 
     public void startNewGame(int width, int height, int minesCount) throws IllegalGameParametersException {
         this.game = new Game(width, height, minesCount);
-        gameInstanceObservers.forEach(observer -> observer.onNewGame());
+        gameInstanceObservers.forEach(GameInstanceObserver::onNewGame);
     }
 
     public void addGameInstanceObserver(GameInstanceObserver observer) {

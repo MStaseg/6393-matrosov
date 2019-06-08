@@ -6,12 +6,25 @@ import ru.cft.focusstart.matrosov.util.ImageUtils;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Class represents single cell view in game field
+ */
 public class Cell extends JButton {
 
     private int size;
     private CellType type;
 
+    /**
+     * Creates the cell with the type given
+     *
+     * @param type of the cell
+     * @param size of the cell greater than 0
+     */
     public Cell(CellType type, int size) {
+        if (size <= 0) {
+            throw new UnsupportedOperationException("Размер ячейки должен быть больше нуля");
+        }
+
         this.size = size;
         setType(type);
     }
@@ -20,6 +33,11 @@ public class Cell extends JButton {
         return type;
     }
 
+    /**
+     * Method changes the type of the cells. Also changes the icons of the cell.
+     *
+     * @param type of the cell
+     */
     public void setType(CellType type) {
         this.type = type;
 
@@ -40,6 +58,9 @@ public class Cell extends JButton {
         }
     }
 
+    /**
+     * Emulates the cell pressing by changing the cell icon
+     */
     public void emulatePressOn() {
         if (type != CellType.CLOSED) {
             return;
@@ -49,6 +70,9 @@ public class Cell extends JButton {
         setIcon(icon);
     }
 
+    /**
+     * Switches off the cell pressing emulation
+     */
     public void emulatePressOff() {
         if (type != CellType.CLOSED) {
             return;

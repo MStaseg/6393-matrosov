@@ -1,6 +1,10 @@
 package ru.cft.focusstart.matrosov.model;
 
+/**
+ * Enum contains each existing type of the cell that can be seen by user
+ */
 public enum CellType {
+
     CLOSED("closed"),
     EMPTY("zero"),
     BOMB("bomb"),
@@ -26,6 +30,12 @@ public enum CellType {
         return imagePath;
     }
 
+    /**
+     * Method returns next cell with mines near number type. If the cell type is the bomb or bombed
+     * it returns the same type. For empty or numeric types it returns next type.
+     *
+     * @return next type of the cell
+     */
     public CellType getNextNumberCell() {
         switch (this) {
             case EMPTY: return CellType.ONE_MINE_AROUND;
@@ -40,6 +50,11 @@ public enum CellType {
         }
     }
 
+    /**
+     * Returns integer value that means how many mines should be near the cell of this type
+     *
+     * @return number of mines. If the cell type does not support this operation it returns -1.
+     */
     public int getNumberOfMinesAround() {
         switch (this) {
             case EMPTY: return 0;

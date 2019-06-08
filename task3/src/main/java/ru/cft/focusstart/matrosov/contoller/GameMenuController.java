@@ -1,14 +1,15 @@
 package ru.cft.focusstart.matrosov.contoller;
 
-import ru.cft.focusstart.matrosov.exception.IllegalGameParametersException;
 import ru.cft.focusstart.matrosov.model.Game;
 import ru.cft.focusstart.matrosov.model.GameDifficulty;
 import ru.cft.focusstart.matrosov.model.GameManager;
 
 import javax.swing.*;
-import java.awt.*;
 
-public class GameMenuController extends JMenuBar {
+/**
+ * Controller represent the top menu with all items and actions for all of them
+ */
+class GameMenuController extends JMenuBar {
 
     GameMenuController() {
         super();
@@ -23,7 +24,6 @@ public class GameMenuController extends JMenuBar {
         JMenuItem beginnerItem = new JMenuItem("Новичок");
         JMenuItem middleItem = new JMenuItem("Любитель");
         JMenuItem professionalItem = new JMenuItem("Профессионал");
-        JMenuItem specialItem = new JMenuItem("Особый...");
         JMenuItem exitItem = new JMenuItem("Выйти");
 
         fileMenu.add(newGameItem);
@@ -37,7 +37,6 @@ public class GameMenuController extends JMenuBar {
         middleItem.addActionListener(e -> this.startNewGame(GameDifficulty.NORMAL));
         fileMenu.add(professionalItem);
         professionalItem.addActionListener(e -> this.startNewGame(GameDifficulty.PROFESSIONAL));
-        fileMenu.add(specialItem);
 
         fileMenu.addSeparator();
 
@@ -50,14 +49,17 @@ public class GameMenuController extends JMenuBar {
     private void createRecordsMenu() {
         JMenu newMenu = new JMenu("Рекорды");
 
-        JMenuItem txtFileItem = new JMenuItem("Новичок");
-        newMenu.add(txtFileItem);
+        JMenuItem beginnerStatItem = new JMenuItem("Новичок");
+        beginnerStatItem.addActionListener(e -> this.showStatistic(GameDifficulty.EASY));
+        newMenu.add(beginnerStatItem);
 
-        JMenuItem imgFileItem = new JMenuItem("Профессионал");
-        newMenu.add(imgFileItem);
+        JMenuItem normalStatItem = new JMenuItem("Любитель");
+        normalStatItem.addActionListener(e -> this.showStatistic(GameDifficulty.NORMAL));
+        newMenu.add(normalStatItem);
 
-        JMenuItem folderItem = new JMenuItem("Любитель");
-        newMenu.add(folderItem);
+        JMenuItem proStatItem = new JMenuItem("Профессионал");
+        proStatItem.addActionListener(e -> this.showStatistic(GameDifficulty.PROFESSIONAL));
+        newMenu.add(proStatItem);
 
         add(newMenu);
     }
@@ -69,5 +71,11 @@ public class GameMenuController extends JMenuBar {
     private void startNewGame() {
         Game game = GameManager.getInstance().getGame();
         GameManager.getInstance().startNewGame(game.getWidth(), game.getHeight(), game.getMinesCount());
+    }
+
+    private void showStatistic(GameDifficulty difficulty) {
+        GameStatisticController statisticController = new GameStatisticController(difficulty);
+        statisticController.setVisible(true);
+        statisticController.setLocationRelativeTo(this);
     }
 }

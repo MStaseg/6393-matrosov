@@ -4,17 +4,27 @@ import ru.cft.focusstart.matrosov.exception.IllegalGameParametersException;
 import ru.cft.focusstart.matrosov.model.Game;
 import ru.cft.focusstart.matrosov.model.GameDifficulty;
 import ru.cft.focusstart.matrosov.model.GameManager;
+import ru.cft.focusstart.matrosov.model.stat.StatisticManager;
+import ru.cft.focusstart.matrosov.observer.AskUserNameObserver;
 import ru.cft.focusstart.matrosov.observer.GameInstanceObserver;
+import ru.cft.focusstart.matrosov.util.ImageUtils;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class GameController extends JFrame implements GameInstanceObserver {
+/**
+ * Controller represents main screen. Lifecycle of this controller is equal to lifecycle of the app.
+ */
+public class GameController extends JFrame implements GameInstanceObserver, AskUserNameObserver {
 
     private GameFieldController fieldController;
     private GameMenuController menuController;
     private GameStateController stateController;
 
+    /**
+     * Initiates the game panel. Starts new game with default difficulty. Adds cell panel, menu and state panel.
+     *
+     */
     public GameController() {
         GameManager.getInstance().startNewGame(GameDifficulty.EASY);
         initMenu();
@@ -22,6 +32,7 @@ public class GameController extends JFrame implements GameInstanceObserver {
         initFrame();
         loadGameField();
         GameManager.getInstance().addGameInstanceObserver(this);
+        StatisticManager.getInstance().addStatusObserver(this);
     }
 
     private void initMenu() {
@@ -45,13 +56,11 @@ public class GameController extends JFrame implements GameInstanceObserver {
         setLocationRelativeTo(null);
         setResizable(false);
         setLayout(new BorderLayout());
+        setIconImage(ImageUtils.getImageIcon("icon").getImage());
     }
 
     private void loadGameField() {
         Game game = GameManager.getInstance().getGame();
-        if (game == null) {
-            return;
-        }
 
         if (fieldController != null) {
             fieldController.removeAll();
@@ -66,12 +75,18 @@ public class GameController extends JFrame implements GameInstanceObserver {
         }
 
         initState();
-
         pack();
     }
 
     @Override
     public void onNewGame() {
         loadGameField();
+    }
+
+    @Override
+    public void onUserNameAsk() {
+        GameAlertViewController alertController = new GameAlertViewController();
+        alertController.setVisible(true);
+        alertController.setLocationRelativeTo(this);
     }
 }

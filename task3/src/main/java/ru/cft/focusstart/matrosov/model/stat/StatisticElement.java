@@ -2,6 +2,9 @@ package ru.cft.focusstart.matrosov.model.stat;
 
 import ru.cft.focusstart.matrosov.model.GameDifficulty;
 
+/**
+ * Class-bean for statistic element structure
+ */
 public class StatisticElement {
     private String userName;
     private int result;
@@ -10,6 +13,7 @@ public class StatisticElement {
     StatisticElement(String userName, int result, GameDifficulty difficulty) {
         this.userName = userName;
         this.result = result;
+        this.difficulty = difficulty;
     }
 
     public String getUserName() {
@@ -20,8 +24,8 @@ public class StatisticElement {
         return result;
     }
 
-    public GameDifficulty getDifficulty() {
-        return difficulty;
+    void setUserName(String userName) {
+        this.userName = userName;
     }
 
     @Override
@@ -29,6 +33,7 @@ public class StatisticElement {
         return "StatisticElement{" +
                 "userName='" + userName + '\'' +
                 ", result=" + result +
+                ", difficulty=" + difficulty +
                 '}';
     }
 }

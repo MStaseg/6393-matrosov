@@ -2,9 +2,12 @@ package ru.cft.focusstart.matrosov.util;
 
 import java.util.Objects;
 
+/**
+ * Class-bean that represents the pair of x and y like geometric coordinates
+ */
 public class Coordinates {
-    int x;
-    int y;
+    private int x;
+    private int y;
 
     public Coordinates(int x, int y) {
         if (x < 0 || y < 0) {
