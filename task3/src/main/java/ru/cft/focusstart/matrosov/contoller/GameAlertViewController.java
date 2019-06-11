@@ -10,6 +10,7 @@ import javax.swing.*;
 class GameAlertViewController extends JDialog {
 
     private JTextField textField;
+    private String bufferedName;
 
     GameAlertViewController() {
         getContentPane().setLayout(null);
@@ -20,11 +21,13 @@ class GameAlertViewController extends JDialog {
         addTextField();
         addConfirmButton();
         addCancelButton();
+
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }
 
     private void addTextField() {
         textField = new JTextField();
-        textField.setBounds(16,16, 218,30);
+        textField.setBounds(16, 16, 218, 30);
         add(textField);
     }
 
@@ -32,22 +35,24 @@ class GameAlertViewController extends JDialog {
         JButton confirmButton = new JButton();
         confirmButton.setText("Хорошо");
         confirmButton.addActionListener(e -> {
-            System.out.println(textField.getText().trim());
-            StatisticManager.getInstance().setUserName(textField.getText().trim());
+            bufferedName = textField.getText().trim();
             dispose();
         });
-        confirmButton.setBounds(16,62, 101,30);
+        confirmButton.setBounds(16, 62, 101, 30);
         add(confirmButton);
     }
 
     private void addCancelButton() {
         JButton cancelButton = new JButton();
         cancelButton.setText("Отмена");
-        cancelButton.addActionListener(e -> {
-            StatisticManager.getInstance().setUserName(null);
-            dispose();
-        });
+        cancelButton.addActionListener(e -> dispose());
         cancelButton.setBounds(133,62, 101,30);
         add(cancelButton);
+    }
+
+    @Override
+    public void dispose() {
+        StatisticManager.getInstance().setUserName(bufferedName);
+        super.dispose();
     }
 }
