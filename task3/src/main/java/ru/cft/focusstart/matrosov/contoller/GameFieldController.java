@@ -107,14 +107,7 @@ public class GameFieldController extends JPanel implements GameCellsObserver, Ga
     private void addCellMouseListener(Cell cell) {
         cell.addMouseListener(new MouseListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                int button = e.getButton();
-                if (button == 1) {
-                    handleCellOpening(e);
-                } else if (button == 3) {
-                    handleSettingFlag(e);
-                }
-            }
+            public void mouseClicked(MouseEvent e) {}
 
             @Override
             public void mousePressed(MouseEvent e) {
@@ -135,11 +128,17 @@ public class GameFieldController extends JPanel implements GameCellsObserver, Ga
                     if (rightButtonHold) {
                         rightButtonHold = false;
                         endForceCheck(e);
+                    } else {
+                        handleCellOpening(e);
                     }
                 }
-                if (button == 3 && leftButtonHold && rightButtonHold) {
-                    rightButtonHold = false;
-                    endForceCheck(e);
+                if (button == 3) {
+                    if (leftButtonHold && rightButtonHold) {
+                        rightButtonHold = false;
+                        endForceCheck(e);
+                    } else {
+                        handleSettingFlag(e);
+                    }
                 }
             }
 

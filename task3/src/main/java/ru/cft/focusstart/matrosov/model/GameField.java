@@ -27,6 +27,8 @@ public class GameField {
             throw new IllegalGameParametersException("Минимальные значения ширины и высоты игры равны 9");
         } else if (minesCount >= width * height) {
             throw new IllegalGameParametersException("Слишком много мин для поля заданной ширины");
+        } else if (minesCount < 10) {
+            throw new IllegalGameParametersException("Минимальное количество мин на поле равно 10");
         }
 
         this.width = width;

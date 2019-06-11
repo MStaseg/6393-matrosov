@@ -22,7 +22,7 @@ public class Cell extends JButton {
      */
     public Cell(CellType type, int size) {
         if (size <= 0) {
-            throw new UnsupportedOperationException("Размер ячейки должен быть больше нуля");
+            throw new IllegalArgumentException("Размер ячейки должен быть больше нуля");
         }
 
         this.size = size;
