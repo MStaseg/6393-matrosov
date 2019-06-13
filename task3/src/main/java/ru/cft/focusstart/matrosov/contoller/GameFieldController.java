@@ -54,6 +54,7 @@ public class GameFieldController extends JPanel implements GameCellsObserver, Ga
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 Cell cell = new Cell(CellType.CLOSED, CELL_SIZE);
+                cell.setCoordinates(new Coordinates(j, i));
                 addCellMouseListener(cell);
                 cells[i][j] = cell;
                 add(cell);
@@ -61,47 +62,34 @@ public class GameFieldController extends JPanel implements GameCellsObserver, Ga
         }
     }
 
-    private void handleCellOpening(MouseEvent e) {
-        Coordinates c = getEventButtonCoordinates(e);
-        GameManager.getInstance().getGame().openCell(c);
+    private void handleCellOpening(Cell cell) {
+        GameManager.getInstance().getGame().openCell(cell.getCoordinates());
     }
 
-    private void handleSettingFlag(MouseEvent e) {
-        Coordinates c = getEventButtonCoordinates(e);
-        GameManager.getInstance().getGame().setFlag(c);
+    private void handleSettingFlag(Cell cell) {
+        GameManager.getInstance().getGame().setFlag(cell.getCoordinates());
     }
 
-    private void startForceCheck(MouseEvent e) {
-        Coordinates c = getEventButtonCoordinates(e);
+    private void startForceCheck(Cell cell) {
+        Coordinates c = cell.getCoordinates();
+
         List<Coordinates> coordinates = getAroundClosedButtons(c.getY(), c.getX());
-
         for (Coordinates coordinate: coordinates) {
-            Cell cell = cells[coordinate.getY()][coordinate.getX()];
-            cell.emulatePressOn();
+            Cell nearbyCell = cells[coordinate.getY()][coordinate.getX()];
+            nearbyCell.emulatePressOn();
         }
     }
 
-    private void endForceCheck(MouseEvent e) {
-        Coordinates c = getEventButtonCoordinates(e);
-        List<Coordinates> coordinates = getAroundClosedButtons(c.getY(), c.getX());
+    private void endForceCheck(Cell cell) {
+        Coordinates c = cell.getCoordinates();
 
+        List<Coordinates> coordinates = getAroundClosedButtons(c.getY(), c.getX());
         for (Coordinates coordinate: coordinates) {
-            Cell cell = cells[coordinate.getY()][coordinate.getX()];
-            cell.emulatePressOff();
+            Cell nearbyCell = cells[coordinate.getY()][coordinate.getX()];
+            nearbyCell.emulatePressOff();
         }
 
         GameManager.getInstance().getGame().forceCheck(c);
-    }
-
-    private Coordinates getEventButtonCoordinates(MouseEvent e) {
-        if (!(e.getSource() instanceof Cell)) {
-            return null;
-        }
-
-        Cell cell = (Cell) e.getSource();
-        int x = cell.getX() / CELL_SIZE;
-        int y = cell.getY() / CELL_SIZE;
-        return new Coordinates(x, y);
     }
 
     private void addCellMouseListener(Cell cell) {
@@ -112,33 +100,34 @@ public class GameFieldController extends JPanel implements GameCellsObserver, Ga
             @Override
             public void mousePressed(MouseEvent e) {
                 int button = e.getButton();
+                if (button == 3 && leftButtonHold || button == 1 && rightButtonHold) {
+                    startForceCheck(cell);
+                }
+
                 if (button == 1) {
                     leftButtonHold = true;
-                } else if (button == 3 && leftButtonHold) {
+                } else if (button == 3) {
                     rightButtonHold = true;
-                    startForceCheck(e);
                 }
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
                 int button = e.getButton();
-                if (button == 1) {
-                    leftButtonHold = false;
-                    if (rightButtonHold) {
-                        rightButtonHold = false;
-                        endForceCheck(e);
-                    } else {
-                        handleCellOpening(e);
+                if (leftButtonHold && rightButtonHold) {
+                    endForceCheck(cell);
+                } else {
+                    if (button == 1) {
+                        handleCellOpening(cell);
+                    } else if (button == 3) {
+                        handleSettingFlag(cell);
                     }
                 }
-                if (button == 3) {
-                    if (leftButtonHold && rightButtonHold) {
-                        rightButtonHold = false;
-                        endForceCheck(e);
-                    } else {
-                        handleSettingFlag(e);
-                    }
+
+                if (button == 1) {
+                    leftButtonHold = false;
+                } else if (button == 3) {
+                    rightButtonHold = false;
                 }
             }
 

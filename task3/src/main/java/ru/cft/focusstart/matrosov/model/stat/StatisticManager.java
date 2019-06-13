@@ -85,16 +85,16 @@ public class StatisticManager {
             userName = "unnamed";
         }
 
-        if (waitingElement != null) {
-            waitingElement.setUserName(userName);
-            results.add(waitingElement);
-            waitingElement = null;
-        }
-
         if (userName.length() > 32) {
-            this.userName = userName.substring(0, 31);
+            this.userName = userName.substring(0, 31).trim();
         } else {
             this.userName = userName;
+        }
+
+        if (waitingElement != null) {
+            waitingElement.setUserName(this.userName);
+            results.add(waitingElement);
+            waitingElement = null;
         }
     }
 

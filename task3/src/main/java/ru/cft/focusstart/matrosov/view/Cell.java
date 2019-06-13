@@ -1,6 +1,7 @@
 package ru.cft.focusstart.matrosov.view;
 
 import ru.cft.focusstart.matrosov.model.CellType;
+import ru.cft.focusstart.matrosov.util.Coordinates;
 import ru.cft.focusstart.matrosov.util.ImageUtils;
 
 import javax.swing.*;
@@ -13,6 +14,7 @@ public class Cell extends JButton {
 
     private int size;
     private CellType type;
+    private Coordinates coordinates;
 
     /**
      * Creates the cell with the type given
@@ -31,6 +33,19 @@ public class Cell extends JButton {
 
     public CellType getType() {
         return type;
+    }
+
+    /**
+     * Returns the coordinates of the cell. The coordinates class is not mutable so we don't need to clone it.
+     *
+     * @return coordinates of the cell
+     */
+    public Coordinates getCoordinates() {
+        return coordinates;
+    }
+
+    public void setCoordinates(Coordinates coordinates) {
+        this.coordinates = coordinates;
     }
 
     /**
