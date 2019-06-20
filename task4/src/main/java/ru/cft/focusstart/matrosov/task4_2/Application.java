@@ -1,8 +1,5 @@
 package ru.cft.focusstart.matrosov.task4_2;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.concurrent.*;
 
 public class Application {
