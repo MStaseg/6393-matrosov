@@ -26,8 +26,8 @@ public class Consumer implements Runnable {
             while (!Thread.interrupted()) {
                 Product product = queue.take();
                 logger.info("[Потребитель #{}] id={}: ресурс забран со склада", id, product.getId());
-                logger.info("[Потребитель #{}] id={}: ресурс потреблен", id, product.getId());
                 Thread.sleep(delay);
+                logger.info("[Потребитель #{}] id={}: ресурс потреблен", id, product.getId());
             }
         } catch (InterruptedException e) {
             System.out.println("Поток " + Thread.currentThread().getName()
