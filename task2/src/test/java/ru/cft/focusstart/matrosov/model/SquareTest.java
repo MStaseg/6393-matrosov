@@ -31,7 +31,7 @@ public class SquareTest {
     @Test
     public void getParameters() {
         List<GeometricShapeProperty> expected = new ArrayList<>();
-        expected.add(new GeometricShapeProperty("size", 5.0));
+        expected.add(new GeometricShapeProperty(GeometricShapeParameter.SIZE, 5.0));
 
         Square square = new Square(5.0);
         assertArrayEquals(expected.toArray(), square.getParameters().toArray());

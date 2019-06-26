@@ -25,12 +25,12 @@ public class TriangleTest {
     public void getParameters() {
         List<GeometricShapeProperty> expected = new ArrayList<>();
 
-        expected.add(new GeometricShapeProperty("firstSize", 5.0));
-        expected.add(new GeometricShapeProperty("firstSizeFrontAngle", 60.0));
-        expected.add(new GeometricShapeProperty("secondSize", 5.0));
-        expected.add(new GeometricShapeProperty("secondSizeFrontAngle", 60.0));
-        expected.add(new GeometricShapeProperty("thirdSize", 5.0));
-        expected.add(new GeometricShapeProperty("thirdSizeFrontAngle", 60.0));
+        expected.add(new GeometricShapeProperty(GeometricShapeParameter.FIRST_SIDE, 5.0));
+        expected.add(new GeometricShapeProperty(GeometricShapeParameter.FIRST_SIDE_FRONT_ANGLE, 60.0));
+        expected.add(new GeometricShapeProperty(GeometricShapeParameter.SECOND_SIDE, 5.0));
+        expected.add(new GeometricShapeProperty(GeometricShapeParameter.SECOND_SIDE_FRONT_ANGLE, 60.0));
+        expected.add(new GeometricShapeProperty(GeometricShapeParameter.THIRD_SIDE, 5.0));
+        expected.add(new GeometricShapeProperty(GeometricShapeParameter.THIRD_SIDE_FRONT_ANGLE, 60.0));
 
         Triangle triangle = new Triangle(5.0, 5.0, 5.0);
         assertArrayEquals(expected.toArray(), triangle.getParameters().toArray());

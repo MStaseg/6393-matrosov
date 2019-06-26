@@ -30,8 +30,8 @@ public class CircleTest {
     @Test
     public void getParameters() {
         List<GeometricShapeProperty> expected = new ArrayList<>();
-        expected.add(new GeometricShapeProperty("radius", 2.0));
-        expected.add(new GeometricShapeProperty("diameter", 4.0));
+        expected.add(new GeometricShapeProperty(GeometricShapeParameter.RADIUS, 2.0));
+        expected.add(new GeometricShapeProperty(GeometricShapeParameter.DIAMETER, 4.0));
 
         Circle circle = new Circle(2.0);
         assertArrayEquals(expected.toArray(), circle.getParameters().toArray());

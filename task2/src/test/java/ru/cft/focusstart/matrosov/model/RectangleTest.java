@@ -24,9 +24,9 @@ public class RectangleTest {
     public void getParameters() {
         List<GeometricShapeProperty> expected = new ArrayList<>();
 
-        expected.add(new GeometricShapeProperty("width", 4.0));
-        expected.add(new GeometricShapeProperty("height", 3.0));
-        expected.add(new GeometricShapeProperty("diagonal", 5.0));
+        expected.add(new GeometricShapeProperty(GeometricShapeParameter.WIDTH, 4.0));
+        expected.add(new GeometricShapeProperty(GeometricShapeParameter.HEIGHT, 3.0));
+        expected.add(new GeometricShapeProperty(GeometricShapeParameter.DIAGONAL, 5.0));
 
         Rectangle rect = new Rectangle(3, 4);
         assertArrayEquals(expected.toArray(), rect.getParameters().toArray());
