@@ -6,5 +6,9 @@ public final class Services {
         return DefaultMessageService.instance;
     }
 
+    public static ClientService getClientService() {
+        return DefaultClientService.instance;
+    }
+
     private Services() {}
 }
