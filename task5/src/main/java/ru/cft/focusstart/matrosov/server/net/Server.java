@@ -21,7 +21,6 @@ public class Server {
     private ServerSocket serverSocket;
 
     private Thread messageListenerThread;
-    private Thread disconnectListenerThread;
 
     private Server() {}
 
@@ -55,9 +54,11 @@ public class Server {
                 try {
                     List<Client> clients = Services.getClientService().getClients();
                     Iterator<Client> iterator = clients.iterator();
+
                     while (iterator.hasNext()) {
                         Client client = iterator.next();
                         String msgString = client.getMessage();
+
                         if (msgString != null) {
                             if (client.getName() == null)  {
                                 JsonMessage message
@@ -102,8 +103,8 @@ public class Server {
                                 InfoMessage infoMessage = new InfoMessage(client.getName() + " отключился");
                                 Services.getMessageService().sendMessage(clients, infoMessage);
                             }
-                            client.getSocket().close();
                             iterator.remove();
+                            Services.getClientService().disconnect(client);
                         }
                     }
 

@@ -7,6 +7,7 @@ import ru.cft.focusstart.matrosov.client.observer.ErrorObserver;
 import ru.cft.focusstart.matrosov.client.observer.SuccessObserver;
 
 import javax.swing.*;
+import java.text.SimpleDateFormat;
 
 public class ConnectionController extends JFrame implements SuccessObserver, ErrorObserver {
 
@@ -35,8 +36,11 @@ public class ConnectionController extends JFrame implements SuccessObserver, Err
         userNameLabel = new JLabel("Ник");
 
         serverTextField = new JTextField();
+        serverTextField.setText("localhost");
         portTextField = new JTextField();
+        portTextField.setText("1111");
         userNameTextField = new JTextField();
+        userNameTextField.setText("123");
 
         connectBtn = new JButton("Войти");
 

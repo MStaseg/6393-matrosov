@@ -29,14 +29,14 @@ public class ConnectionManager {
 
     private boolean isAuthorized;
 
-    String host;
+    private String host;
 
-    int port;
+    private int port;
 
     private String userName;
 
-    PrintWriter writer;
-    BufferedReader reader;
+    private PrintWriter writer;
+    private BufferedReader reader;
 
     private List<ErrorObserver> errorObservers;
 
@@ -50,6 +50,10 @@ public class ConnectionManager {
         }
 
         return instance;
+    }
+
+    public String getUserName() {
+        return userName;
     }
 
     public Socket getSocket() {
@@ -91,13 +95,24 @@ public class ConnectionManager {
             writer.println(mapper.writeValueAsString(authMessage));
             writer.flush();
 
-            writer.println(mapper.writeValueAsString(authMessage));
-            writer.flush();
-
             addMessageListenerThread();
         } catch (IOException e) {
             socket = null;
             throw new ConnectionManagerException("Ошибка при подключении к серверу: " + e.getMessage());
+        }
+    }
+
+    void sendMessage(JsonMessage message) {
+
+        JsonFactory jsonFactory = new JsonFactory();
+        jsonFactory.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
+        ObjectMapper mapper = new ObjectMapper(jsonFactory);
+
+        try {
+            writer.println(mapper.writeValueAsString(message));
+            writer.flush();
+        } catch (IOException e) {
+            System.out.println("Ошибка при отправке сообщения: " + e.getMessage());
         }
     }
 

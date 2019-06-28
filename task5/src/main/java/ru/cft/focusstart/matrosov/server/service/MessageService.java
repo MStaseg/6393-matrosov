@@ -9,8 +9,8 @@ import java.util.List;
 
 public interface MessageService {
     Message add(Message message);
-    List<Message> getMessages();
+    List<JsonMessage> getMessages();
     void sendMessage(Client client, JsonMessage message) throws ServiceClientException;
     void sendMessage(List<Client> clients, JsonMessage message) throws ServiceClientException;
-    void sendMessageList(Client client, List<Message> messages) throws ServiceClientException;
+    void sendMessageList(Client client, List<JsonMessage> messages) throws ServiceClientException;
 }

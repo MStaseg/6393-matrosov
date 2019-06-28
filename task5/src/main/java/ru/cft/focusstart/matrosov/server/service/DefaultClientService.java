@@ -42,4 +42,14 @@ public class DefaultClientService implements ClientService {
             }
         }
     }
+
+    @Override
+    public void disconnect(Client client) throws ServiceClientException {
+        try {
+            client.disconnect();
+            Repositories.getClientRepository().remove(client);
+        } catch (IOException e) {
+            throw new ServiceClientException("Ошибка при отсоединении клиента " + client.getName());
+        }
+    }
 }

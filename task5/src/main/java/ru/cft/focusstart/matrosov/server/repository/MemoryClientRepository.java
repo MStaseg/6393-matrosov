@@ -19,6 +19,11 @@ public class MemoryClientRepository implements ClientRepository {
     }
 
     @Override
+    public void remove(Client client) {
+        clients.remove(client);
+    }
+
+    @Override
     public List<Client> get() {
         return new ArrayList<>(clients);
     }

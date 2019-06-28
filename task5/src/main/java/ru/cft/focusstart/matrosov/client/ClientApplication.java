@@ -1,6 +1,5 @@
 package ru.cft.focusstart.matrosov.client;
 
-import ru.cft.focusstart.matrosov.client.controller.ConnectionController;
 import ru.cft.focusstart.matrosov.client.controller.ControllerManager;
 import ru.cft.focusstart.matrosov.client.model.ConnectionManager;
 

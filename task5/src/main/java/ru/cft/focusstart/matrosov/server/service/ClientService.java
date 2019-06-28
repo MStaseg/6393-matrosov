@@ -12,4 +12,5 @@ public interface ClientService {
     void addClient(Socket socket) throws ServiceClientException;
     List<Client> getClients();
     void disconnectAll() throws ServiceClientException;
+    void disconnect(Client client) throws ServiceClientException;
 }

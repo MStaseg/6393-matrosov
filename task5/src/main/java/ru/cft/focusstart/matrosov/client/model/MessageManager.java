@@ -1,9 +1,11 @@
 package ru.cft.focusstart.matrosov.client.model;
 
+import ru.cft.focusstart.matrosov.client.controller.ConnectionController;
 import ru.cft.focusstart.matrosov.client.observer.*;
 import ru.cft.focusstart.matrosov.common.*;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -90,70 +92,60 @@ public class MessageManager {
         }
     }
 
-    private void processMessage(ClientMessage message) {
-        System.out.println(message);
+    public void sendMessage(String text) {
+        JsonMessage message = new Message(text, new Date(), ConnectionManager.getInstance().getUserName());
+        ConnectionManager.getInstance().sendMessage(message);
+    }
 
-        Iterator<ClientObserver> iterator = clientObservers.iterator();
-        while (iterator.hasNext()) {
-            ClientObserver o = iterator.next();
+    private void processMessage(ClientMessage message) {
+        System.out.println("ClientMessage message " + message);
+
+        for (ClientObserver o : clientObservers) {
             o.onNewClient(message);
         }
     }
 
     private synchronized void processMessage(Message message) {
-        System.out.println(message);
+        System.out.println("Message message " + message);
 
-        // We use iterator cause else we can get ConcurrentModificationException
-        Iterator<MessageObserver> iterator = messageObservers.iterator();
-        while (iterator.hasNext()) {
-            MessageObserver o = iterator.next();
+        for (MessageObserver o : messageObservers) {
             o.onNewMessage(message);
         }
     }
 
     private synchronized void processMessage(MessageList message) {
-        System.out.println(message);
+        System.out.println("MessageList message " + message);
 
-        Iterator<MessageObserver> iterator = messageObservers.iterator();
-        while (iterator.hasNext()) {
-            MessageObserver o = iterator.next();
+        for (MessageObserver o : messageObservers) {
             o.onNewMessages(message.getMessages());
         }
     }
 
     private synchronized void processMessage(ClientList message) {
-        System.out.println(message);
+        System.out.println("ClientList message " + message);
 
-        Iterator<ClientObserver> iterator = clientObservers.iterator();
-        while (iterator.hasNext()) {
-            ClientObserver o = iterator.next();
+        for (ClientObserver o : clientObservers) {
             o.onNewClientList(message.getMessages());
         }
     }
     private synchronized void processMessage(InfoMessage message) {
         System.out.println(message);
 
-        Iterator<InfoObserver> iterator = infoObservers.iterator();
-        while (iterator.hasNext()) {
-            InfoObserver o = iterator.next();
+        for (InfoObserver o : infoObservers) {
             o.onInfo(message.getInfo());
         }
     }
     private synchronized void processMessage(ErrorMessage message) {
         System.out.println(message);
 
-        Iterator<ErrorObserver> iterator = errorObservers.iterator();
-        while (iterator.hasNext()) {
-            ErrorObserver o = iterator.next();
+        for (ErrorObserver o : errorObservers) {
             o.onError(message.getCause());
         }
     }
     private synchronized void processMessage(SuccessMessage message) {
         System.out.println(message);
 
-        Iterator<SuccessObserver> iterator = successObservers.iterator();
-        while (iterator.hasNext()) {
-            SuccessObserver o = iterator.next();
+        for (SuccessObserver o : successObservers) {
             o.onSuccess(message.getSuccess());
         }
     }

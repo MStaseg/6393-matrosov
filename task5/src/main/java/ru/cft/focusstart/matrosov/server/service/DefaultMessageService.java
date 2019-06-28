@@ -23,7 +23,7 @@ public final class DefaultMessageService implements MessageService {
     }
 
     @Override
-    public List<Message> getMessages() {
+    public List<JsonMessage> getMessages() {
         return Repositories.getMessageRepository().get();
     }
 
@@ -32,6 +32,7 @@ public final class DefaultMessageService implements MessageService {
         try {
             String msg = JsonParser.getInstance().getMapper().writeValueAsString(message);
             client.sendMessage(msg);
+            Repositories.getMessageRepository().add(message);
         } catch (IOException e) {
             throw new ServiceClientException("Ошибка при отправке сообщения", e);
         }
@@ -43,6 +44,7 @@ public final class DefaultMessageService implements MessageService {
             try {
                 String msg = JsonParser.getInstance().getMapper().writeValueAsString(message);
                 client.sendMessage(msg);
+                Repositories.getMessageRepository().add(message);
             } catch (IOException e) {
                 throw new ServiceClientException("Ошибка при рассылке сообщений", e);
             }
@@ -50,7 +52,7 @@ public final class DefaultMessageService implements MessageService {
     }
 
     @Override
-    public void sendMessageList(Client client, List<Message> messages) throws ServiceClientException {
+    public void sendMessageList(Client client, List<JsonMessage> messages) throws ServiceClientException {
 
     }
 }
