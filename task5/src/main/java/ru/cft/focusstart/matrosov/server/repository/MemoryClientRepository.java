@@ -9,7 +9,7 @@ public class MemoryClientRepository implements ClientRepository {
 
     static final MemoryClientRepository instance = new MemoryClientRepository();
 
-    private List<Client> clients = new ArrayList<>();
+    private volatile List<Client> clients = new ArrayList<>();
 
     private MemoryClientRepository() {}
 
@@ -24,7 +24,7 @@ public class MemoryClientRepository implements ClientRepository {
     }
 
     @Override
-    public List<Client> get() {
+    public synchronized List<Client> get() {
         return new ArrayList<>(clients);
     }
 }

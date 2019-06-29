@@ -1,8 +1,7 @@
 package ru.cft.focusstart.matrosov.server.service;
 
 import ru.cft.focusstart.matrosov.common.JsonMessage;
-import ru.cft.focusstart.matrosov.common.Message;
-import ru.cft.focusstart.matrosov.server.exception.ServiceClientException;
+import ru.cft.focusstart.matrosov.server.exception.ServiceMessageException;
 import ru.cft.focusstart.matrosov.server.net.Client;
 import ru.cft.focusstart.matrosov.server.repository.Repositories;
 import ru.cft.focusstart.matrosov.server.util.JsonParser;
@@ -17,42 +16,37 @@ public final class DefaultMessageService implements MessageService {
     private DefaultMessageService() {}
 
     @Override
-    public Message add(Message message) {
+    public JsonMessage add(JsonMessage message) {
         Repositories.getMessageRepository().add(message);
         return message;
     }
 
     @Override
-    public List<JsonMessage> getMessages() {
-        return Repositories.getMessageRepository().get();
-    }
+    public void sendMessage(Client client, JsonMessage message) throws ServiceMessageException {
+        add(message);
 
-    @Override
-    public void sendMessage(Client client, JsonMessage message) throws ServiceClientException {
         try {
             String msg = JsonParser.getInstance().getMapper().writeValueAsString(message);
             client.sendMessage(msg);
             Repositories.getMessageRepository().add(message);
         } catch (IOException e) {
-            throw new ServiceClientException("Ошибка при отправке сообщения", e);
+            throw new ServiceMessageException("Ошибка при отправке сообщения", e);
         }
     }
 
     @Override
-    public void sendMessage(List<Client> clients, JsonMessage message) throws ServiceClientException {
+    public void sendMessageToAll(JsonMessage message) throws ServiceMessageException {
+        add(message);
+
+        List<Client> clients = Services.getClientService().getClients();
         for (Client client: clients) {
             try {
                 String msg = JsonParser.getInstance().getMapper().writeValueAsString(message);
                 client.sendMessage(msg);
                 Repositories.getMessageRepository().add(message);
             } catch (IOException e) {
-                throw new ServiceClientException("Ошибка при рассылке сообщений", e);
+                throw new ServiceMessageException("Ошибка при рассылке сообщений", e);
             }
         }
-    }
-
-    @Override
-    public void sendMessageList(Client client, List<JsonMessage> messages) throws ServiceClientException {
-
     }
 }

@@ -2,25 +2,22 @@ package ru.cft.focusstart.matrosov.server.net;
 
 import ru.cft.focusstart.matrosov.common.*;
 import ru.cft.focusstart.matrosov.server.ServerApplication;
+import ru.cft.focusstart.matrosov.server.exception.ServerException;
 import ru.cft.focusstart.matrosov.server.exception.ServiceClientException;
+import ru.cft.focusstart.matrosov.server.exception.ServiceMessageException;
 import ru.cft.focusstart.matrosov.server.service.Services;
 import ru.cft.focusstart.matrosov.server.util.JsonParser;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class Server {
 
     private static Server instance;
 
     private ServerSocket serverSocket;
-
-    private Thread messageListenerThread;
 
     private Server() {}
 
@@ -32,87 +29,47 @@ public class Server {
         return instance;
     }
 
-    public void start() throws IOException, ServiceClientException {
+    public void start() throws ServerException {
 
         Properties properties = new Properties();
         try (InputStream propertiesStream = ServerApplication.class.getClassLoader().getResourceAsStream("server.properties")) {
-            properties.load(propertiesStream);
+            properties.load(Objects.requireNonNull(propertiesStream));
+            serverSocket = new ServerSocket(Integer.valueOf(properties.getProperty("server.port")));
+            startSocketObserver();
+        } catch (Exception e) {
+            throw new ServerException("Нев удалось загрузить сервер", e);
         }
 
-        serverSocket = new ServerSocket(Integer.valueOf(properties.getProperty("server.port")));
-
-        addMessageListener();
         addShutdownHook();
-        startSocketObserver();
-
     }
 
-    private void addMessageListener() {
-        messageListenerThread = new Thread(() -> {
+    private void addMessageListener(Client client) {
+        new Thread(() -> {
             boolean interrupted = false;
             while (!interrupted) {
                 try {
-                    List<Client> clients = Services.getClientService().getClients();
-                    Iterator<Client> iterator = clients.iterator();
-
-                    while (iterator.hasNext()) {
-                        Client client = iterator.next();
-                        String msgString = client.getMessage();
-
-                        if (msgString != null) {
-                            if (client.getName() == null)  {
-                                JsonMessage message
-                                        = JsonParser.getInstance().readValue(msgString, JsonMessage.class);
-                                if (message instanceof ClientMessage) {
-
-                                    ClientMessage msg = (ClientMessage) message;
-                                    boolean incorrectUserName = false;
-                                    for (Client c : clients) {
-                                        if (msg.getUserName().equals(c.getName())) {
-                                            incorrectUserName = true;
-                                        }
-                                    }
-
-                                    if (incorrectUserName) {
-                                        ErrorMessage errorMessage = new ErrorMessage("Такой ник уже занят другим пользователем");
-                                        Services.getMessageService().sendMessage(client, errorMessage);
-                                    } else {
-
-                                        SuccessMessage successMessage = new SuccessMessage(true);
-                                        Services.getMessageService().sendMessage(client, successMessage);
-
-
-                                        client.setName(msg.getUserName());
-                                        List<ClientMessage> list = new ArrayList<>();
-                                        list.add(msg);
-                                        Services.getMessageService().sendMessage(clients, new ClientList(list));
-
-
-                                        InfoMessage infoMessage = new InfoMessage(msg.getUserName() + " присоединился");
-                                        Services.getMessageService().sendMessage(clients, infoMessage);
-                                    }
-                                }
-                            } else {
-                                JsonMessage message = JsonParser.getInstance().readValue(msgString, JsonMessage.class);
-                                if (message != null) {
-                                    Services.getMessageService().sendMessage(clients, message);
-                                }
+                    String msgString = client.getMessage();
+                    if (msgString != null) {
+                        JsonMessage message = JsonParser.getInstance().readValue(msgString, JsonMessage.class);
+                        if (client.getName() == null) {
+                            if (message instanceof ClientMessage) {
+                                ClientMessage msg = (ClientMessage) message;
+                                Services.getClientService().setName(client, msg);
                             }
                         } else {
-                            if (client.getName() != null) {
-                                InfoMessage infoMessage = new InfoMessage(client.getName() + " отключился");
-                                Services.getMessageService().sendMessage(clients, infoMessage);
-                            }
-                            iterator.remove();
-                            Services.getClientService().disconnect(client);
+                            Services.getMessageService().sendMessageToAll(message);
                         }
+                    } else {
+                        Services.getClientService().disconnect(client);
+                        interrupted = true;
                     }
 
-
                 } catch (ServiceClientException e) {
-                    System.out.println("err");
+                    System.out.println("Ошибка при работе с клиентом: " + e.getMessage());
+                } catch (ServiceMessageException e) {
+                    System.out.println("Ошибка при работе с сообщениями: " + e.getMessage());
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    System.out.println("Неизвестная ошибка: " + e.getMessage());
                 }
 
                 try {
@@ -121,14 +78,12 @@ public class Server {
                     interrupted = true;
                 }
             }
-        });
-        messageListenerThread.start();
+        }).start();
     }
 
     private void addShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                messageListenerThread.interrupt();
                 serverSocket.close();
                 try {
                     Services.getClientService().disconnectAll();
@@ -141,10 +96,11 @@ public class Server {
         }));
     }
 
-    private void startSocketObserver() throws ServiceClientException, IOException {
+    private void startSocketObserver() throws IOException {
         while (true) {
             Socket clientSocket = serverSocket.accept();
-            Services.getClientService().addClient(clientSocket);
+            Client newClient = new Client(clientSocket);
+            addMessageListener(newClient);
         }
     }
 }

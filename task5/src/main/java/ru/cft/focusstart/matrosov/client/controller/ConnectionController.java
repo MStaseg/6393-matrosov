@@ -11,17 +11,19 @@ import java.text.SimpleDateFormat;
 
 public class ConnectionController extends JFrame implements SuccessObserver, ErrorObserver {
 
-    JLabel serverLabel;
-    JLabel portLabel;
-    JLabel userNameLabel;
+    private JLabel serverLabel;
+    private JLabel portLabel;
+    private JLabel userNameLabel;
 
-    JTextField serverTextField;
-    JTextField portTextField;
-    JTextField userNameTextField;
+    private JTextField serverTextField;
+    private JTextField portTextField;
+    private JTextField userNameTextField;
 
-    JButton connectBtn;
+    private JButton connectBtn;
 
-    public ConnectionController() {
+    private AlertController alert;
+
+    ConnectionController() {
         setupComponents();
         MessageManager.getInstance().addSuccessObserver(this);
         MessageManager.getInstance().addErrorObserver(this);
@@ -36,11 +38,8 @@ public class ConnectionController extends JFrame implements SuccessObserver, Err
         userNameLabel = new JLabel("Ник");
 
         serverTextField = new JTextField();
-        serverTextField.setText("localhost");
         portTextField = new JTextField();
-        portTextField.setText("1111");
         userNameTextField = new JTextField();
-        userNameTextField.setText("123");
 
         connectBtn = new JButton("Войти");
 
@@ -89,7 +88,8 @@ public class ConnectionController extends JFrame implements SuccessObserver, Err
     @Override
     public void onError(String cause) {
         setVisible(true);
-        AlertController alert = new AlertController(cause);
+        alert = new AlertController(cause);
+        alert.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         alert.setVisible(true);
         ControllerManager.chatController.setVisible(false);
     }
@@ -97,6 +97,9 @@ public class ConnectionController extends JFrame implements SuccessObserver, Err
     @Override
     public void onSuccess(boolean success) {
         setVisible(false);
+        if (alert != null) {
+            alert.dispose();
+        }
         ControllerManager.chatController.setVisible(true);
     }
 }

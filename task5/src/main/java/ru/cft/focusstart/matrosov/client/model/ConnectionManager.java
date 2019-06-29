@@ -1,16 +1,11 @@
 package ru.cft.focusstart.matrosov.client.model;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.cft.focusstart.matrosov.client.exception.ConnectionManagerException;
 import ru.cft.focusstart.matrosov.client.observer.ErrorObserver;
 import ru.cft.focusstart.matrosov.client.util.JsonParser;
 import ru.cft.focusstart.matrosov.common.ClientMessage;
 import ru.cft.focusstart.matrosov.common.InfoMessage;
 import ru.cft.focusstart.matrosov.common.JsonMessage;
-import ru.cft.focusstart.matrosov.common.Message;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,7 +13,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class ConnectionManager {
@@ -68,10 +62,6 @@ public class ConnectionManager {
         errorObservers.remove(o);
     }
 
-    public boolean checkAuthorized() {
-        return isAuthorized;
-    }
-
     public void connect(String host, int port, String name) throws ConnectionManagerException {
 
         this.host = host;
@@ -88,11 +78,7 @@ public class ConnectionManager {
 
             ClientMessage authMessage = new ClientMessage(name);
 
-            JsonFactory jsonFactory = new JsonFactory();
-            jsonFactory.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
-            ObjectMapper mapper = new ObjectMapper(jsonFactory);
-
-            writer.println(mapper.writeValueAsString(authMessage));
+            writer.println(JsonParser.getInstance().getMapper().writeValueAsString(authMessage));
             writer.flush();
 
             addMessageListenerThread();
@@ -103,13 +89,8 @@ public class ConnectionManager {
     }
 
     void sendMessage(JsonMessage message) {
-
-        JsonFactory jsonFactory = new JsonFactory();
-        jsonFactory.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
-        ObjectMapper mapper = new ObjectMapper(jsonFactory);
-
         try {
-            writer.println(mapper.writeValueAsString(message));
+            writer.println(JsonParser.getInstance().getMapper().writeValueAsString(message));
             writer.flush();
         } catch (IOException e) {
             System.out.println("Ошибка при отправке сообщения: " + e.getMessage());
@@ -121,13 +102,9 @@ public class ConnectionManager {
             boolean interrupted = false;
             while (!interrupted) {
                 try {
-                    JsonFactory jsonFactory = new JsonFactory();
-                    jsonFactory.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
-                    ObjectMapper mapper = new ObjectMapper(jsonFactory);
-
                     String msg = reader.readLine();
                     if (msg != null) {
-                        JsonMessage message = mapper.readValue(msg, JsonMessage.class);
+                        JsonMessage message = JsonParser.getInstance().getMapper().readValue(msg, JsonMessage.class);
                         MessageManager.getInstance().processMessage(message);
                     } else {
                         if (isAuthorized) {

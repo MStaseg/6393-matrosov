@@ -13,13 +13,13 @@ public class Client {
     private PrintWriter writer;
     private BufferedReader reader;
 
-    public Client(Socket socket) throws IOException {
+    Client(Socket socket) throws IOException {
         this.socket = socket;
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.writer = new PrintWriter(socket.getOutputStream());
     }
 
-    void setName(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 

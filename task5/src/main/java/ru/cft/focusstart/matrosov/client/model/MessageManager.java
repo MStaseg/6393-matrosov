@@ -1,12 +1,10 @@
 package ru.cft.focusstart.matrosov.client.model;
 
-import ru.cft.focusstart.matrosov.client.controller.ConnectionController;
 import ru.cft.focusstart.matrosov.client.observer.*;
 import ru.cft.focusstart.matrosov.common.*;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 public class MessageManager {
@@ -98,53 +96,39 @@ public class MessageManager {
     }
 
     private void processMessage(ClientMessage message) {
-        System.out.println("ClientMessage message " + message);
-
         for (ClientObserver o : clientObservers) {
             o.onNewClient(message);
         }
     }
 
     private synchronized void processMessage(Message message) {
-        System.out.println("Message message " + message);
-
         for (MessageObserver o : messageObservers) {
             o.onNewMessage(message);
         }
     }
 
     private synchronized void processMessage(MessageList message) {
-        System.out.println("MessageList message " + message);
-
         for (MessageObserver o : messageObservers) {
             o.onNewMessages(message.getMessages());
         }
     }
 
     private synchronized void processMessage(ClientList message) {
-        System.out.println("ClientList message " + message);
-
         for (ClientObserver o : clientObservers) {
             o.onNewClientList(message.getMessages());
         }
     }
     private synchronized void processMessage(InfoMessage message) {
-        System.out.println(message);
-
         for (InfoObserver o : infoObservers) {
             o.onInfo(message.getInfo());
         }
     }
     private synchronized void processMessage(ErrorMessage message) {
-        System.out.println(message);
-
         for (ErrorObserver o : errorObservers) {
             o.onError(message.getCause());
         }
     }
     private synchronized void processMessage(SuccessMessage message) {
-        System.out.println(message);
-
         for (SuccessObserver o : successObservers) {
             o.onSuccess(message.getSuccess());
         }

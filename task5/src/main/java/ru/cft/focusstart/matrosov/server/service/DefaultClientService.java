@@ -1,13 +1,13 @@
 package ru.cft.focusstart.matrosov.server.service;
 
-import ru.cft.focusstart.matrosov.common.Message;
+import ru.cft.focusstart.matrosov.common.*;
 import ru.cft.focusstart.matrosov.server.exception.ServiceClientException;
+import ru.cft.focusstart.matrosov.server.exception.ServiceMessageException;
 import ru.cft.focusstart.matrosov.server.net.Client;
 import ru.cft.focusstart.matrosov.server.repository.Repositories;
-import ru.cft.focusstart.matrosov.server.util.JsonParser;
 
 import java.io.IOException;
-import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DefaultClientService implements ClientService {
@@ -17,17 +17,7 @@ public class DefaultClientService implements ClientService {
     private DefaultClientService() {}
 
     @Override
-    public void addClient(Socket socket) throws ServiceClientException {
-        try {
-            Client client = new Client(socket);
-            Repositories.getClientRepository().add(client);
-        } catch (IOException e) {
-            throw new ServiceClientException("Не удалось создать нового клиента", e);
-        }
-    }
-
-    @Override
-    public List<Client> getClients() {
+    public synchronized List<Client> getClients() {
         return Repositories.getClientRepository().get();
     }
 
@@ -44,12 +34,55 @@ public class DefaultClientService implements ClientService {
     }
 
     @Override
-    public void disconnect(Client client) throws ServiceClientException {
+    public void disconnect(Client client) throws ServiceClientException, ServiceMessageException {
         try {
             client.disconnect();
             Repositories.getClientRepository().remove(client);
+            if (client.getName() != null) {
+                List<Client> clients = Repositories.getClientRepository().get();
+                List<ClientMessage> list = new ArrayList<>();
+                for (Client c: clients) {
+                    list.add(new ClientMessage(c.getName()));
+                }
+                Services.getMessageService().sendMessageToAll(new ClientList(list));
+                InfoMessage infoMessage = new InfoMessage(client.getName() + " отключился");
+                Services.getMessageService().sendMessageToAll(infoMessage);
+            }
         } catch (IOException e) {
             throw new ServiceClientException("Ошибка при отсоединении клиента " + client.getName());
+        }
+    }
+
+    @Override
+    public void setName(Client client, ClientMessage message) throws ServiceMessageException {
+        List<Client> clients = Services.getClientService().getClients();
+        boolean incorrectUserName = false;
+        for (Client c : clients) {
+            if (message.getUserName().equals(c.getName())) {
+                incorrectUserName = true;
+            }
+        }
+
+        if (incorrectUserName) {
+            ErrorMessage errorMessage = new ErrorMessage("Такой ник уже занят другим пользователем");
+            Services.getMessageService().sendMessage(client, errorMessage);
+        } else {
+            Repositories.getClientRepository().add(client);
+            clients = Services.getClientService().getClients();
+
+            SuccessMessage successMessage = new SuccessMessage(true);
+            Services.getMessageService().sendMessage(client, successMessage);
+
+            client.setName(message.getUserName());
+            List<ClientMessage> list = new ArrayList<>();
+            for (Client c: clients) {
+                list.add(new ClientMessage(c.getName()));
+            }
+            Services.getMessageService().sendMessageToAll(new ClientList(list));
+
+
+            InfoMessage infoMessage = new InfoMessage(message.getUserName() + " присоединился");
+            Services.getMessageService().sendMessageToAll(infoMessage);
         }
     }
 }

@@ -21,9 +21,9 @@ public class ChatController extends JFrame implements MessageObserver, InfoObser
     private JTextArea usersArea;
 
 
-    SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-    public ChatController() {
+    ChatController() {
 
         MessageManager manager = MessageManager.getInstance();
         manager.addClientObserver(this);
@@ -46,6 +46,9 @@ public class ChatController extends JFrame implements MessageObserver, InfoObser
         confirmButton = new JButton("Отправить");
         confirmButton.addActionListener(event -> {
             String text = messageTextField.getText().trim();
+            if (text.equals("")) {
+                return;
+            }
             messageTextField.setText("");
             MessageManager.getInstance().sendMessage(text);
         });
