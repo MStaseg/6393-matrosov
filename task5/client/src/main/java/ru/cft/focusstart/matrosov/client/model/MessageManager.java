@@ -6,22 +6,23 @@ import ru.cft.focusstart.matrosov.common.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MessageManager {
-    public static final MessageManager instance = new MessageManager();
+    public static final MessageManager INSTANCE = new MessageManager();
 
-    private List<MessageObserver> messageObservers;
-    private List<ClientObserver> clientObservers;
-    private List<InfoObserver> infoObservers;
-    private List<ErrorObserver> errorObservers;
-    private List<SuccessObserver> successObservers;
+    private CopyOnWriteArrayList<MessageObserver> messageObservers;
+    private CopyOnWriteArrayList<ClientObserver> clientObservers;
+    private CopyOnWriteArrayList<InfoObserver> infoObservers;
+    private CopyOnWriteArrayList<ErrorObserver> errorObservers;
+    private CopyOnWriteArrayList<SuccessObserver> successObservers;
 
     private MessageManager() {
-        messageObservers = new ArrayList<>();
-        clientObservers = new ArrayList<>();
-        infoObservers = new ArrayList<>();
-        errorObservers = new ArrayList<>();
-        successObservers = new ArrayList<>();
+        messageObservers = new CopyOnWriteArrayList<>();
+        clientObservers = new CopyOnWriteArrayList<>();
+        infoObservers = new CopyOnWriteArrayList<>();
+        errorObservers = new CopyOnWriteArrayList<>();
+        successObservers = new CopyOnWriteArrayList<>();
     }
 
     public void addMessageObserver(MessageObserver o) {
@@ -81,8 +82,8 @@ public class MessageManager {
     }
 
     public void sendMessage(String text) {
-        JsonMessage message = new ChatMessage(text, new Date(), ConnectionManager.instance.getUser());
-        ConnectionManager.instance.sendMessage(message);
+        JsonMessage message = new ChatMessage(text, new Date(), ConnectionManager.INSTANCE.getUser());
+        ConnectionManager.INSTANCE.sendMessage(message);
     }
 
     private void processMessage(LoginMessage message) {
@@ -91,28 +92,28 @@ public class MessageManager {
         }
     }
 
-    private synchronized void processMessage(ChatMessage message) {
+    private void processMessage(ChatMessage message) {
         for (MessageObserver o : messageObservers) {
             o.onNewMessage(message);
         }
     }
 
-    private synchronized void processMessage(ClientListMessage message) {
+    private void processMessage(ClientListMessage message) {
         for (ClientObserver o : clientObservers) {
             o.onNewClientList(message.getUsers());
         }
     }
-    private synchronized void processMessage(InfoMessage message) {
+    private void processMessage(InfoMessage message) {
         for (InfoObserver o : infoObservers) {
             o.onInfo(message.getInfo());
         }
     }
-    private synchronized void processMessage(LoginFailMessage message) {
+    private void processMessage(LoginFailMessage message) {
         for (ErrorObserver o : errorObservers) {
             o.onError(message.getCause());
         }
     }
-    private synchronized void processMessage(LoginSuccessMessage message) {
+    private void processMessage(LoginSuccessMessage message) {
         for (SuccessObserver o : successObservers) {
             o.onSuccess();
         }

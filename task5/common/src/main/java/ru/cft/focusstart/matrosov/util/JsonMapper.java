@@ -6,9 +6,9 @@ import ru.cft.focusstart.matrosov.common.JsonMessage;
 import java.io.IOException;
 
 public class JsonMapper {
-    public static final JsonMapper instance = new JsonMapper();
+    public static final JsonMapper INSTANCE = new JsonMapper();
 
-    private ObjectMapper mapper;
+    private final ObjectMapper mapper;
 
     private JsonMapper() {
         mapper = new ObjectMapper();

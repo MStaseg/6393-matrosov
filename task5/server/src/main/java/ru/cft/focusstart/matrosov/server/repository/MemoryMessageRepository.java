@@ -4,12 +4,13 @@ import ru.cft.focusstart.matrosov.common.JsonMessage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MemoryMessageRepository implements MessageRepository {
 
-    static final MemoryMessageRepository instance = new MemoryMessageRepository();
+    static final MemoryMessageRepository INSTANCE = new MemoryMessageRepository();
 
-    private List<JsonMessage> messages = new ArrayList<>();
+    private final List<JsonMessage> messages = new CopyOnWriteArrayList<>();
 
     private MemoryMessageRepository() {}
 

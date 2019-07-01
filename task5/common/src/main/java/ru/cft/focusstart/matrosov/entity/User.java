@@ -3,6 +3,8 @@ package ru.cft.focusstart.matrosov.entity;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Objects;
+
 public class User {
     private final String name;
 
@@ -33,5 +35,10 @@ public class User {
 
         User user = (User) obj;
         return user.getName().equals(name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }

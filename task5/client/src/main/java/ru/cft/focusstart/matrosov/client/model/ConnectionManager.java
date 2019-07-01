@@ -13,14 +13,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ConnectionManager {
 
-    public static final ConnectionManager instance = new ConnectionManager();
+    public static final ConnectionManager INSTANCE = new ConnectionManager();
 
-    private static Socket socket;
+    private Socket socket;
 
     private boolean isAuthorized;
 
@@ -35,8 +35,12 @@ public class ConnectionManager {
 
     private List<ErrorObserver> errorObservers;
 
+    private final JsonMapper jsonMapper = JsonMapper.INSTANCE;
+
+    Thread messageListenerThread;
+
     private ConnectionManager() {
-        errorObservers = new ArrayList<>();
+        errorObservers = new CopyOnWriteArrayList<>();
     }
 
     public User getUser() {
@@ -71,7 +75,7 @@ public class ConnectionManager {
 
             LoginMessage authMessage = new LoginMessage(this.user);
 
-            writer.println(JsonMapper.instance.mapToString(authMessage));
+            writer.println(jsonMapper.mapToString(authMessage));
             writer.flush();
 
             addMessageListenerThread();
@@ -83,7 +87,7 @@ public class ConnectionManager {
 
     void sendMessage(JsonMessage message) {
         try {
-            writer.println(JsonMapper.instance.mapToString(message));
+            writer.println(jsonMapper.mapToString(message));
             writer.flush();
         } catch (IOException e) {
             System.out.println("Ошибка при отправке сообщения: " + e.getMessage());
@@ -91,44 +95,56 @@ public class ConnectionManager {
     }
 
     private void addMessageListenerThread() {
-        Thread messageListenerThread = new Thread(() -> {
-            boolean interrupted = false;
-            while (!interrupted) {
+        if (messageListenerThread != null) {
+            messageListenerThread.interrupt();
+        }
+
+        messageListenerThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    String msg = reader.readLine();
+                    String msg = null;
+                    try {
+                        msg = reader.readLine();
+                    } catch (IOException e) {
+                        /* Ignore but got msg=null as a result */
+                    }
+
                     if (msg != null) {
-                        JsonMessage message = JsonMapper.instance.mapToMessage(msg);
-                        MessageManager.instance.processMessage(message);
+                        JsonMessage message = jsonMapper.mapToMessage(msg);
+                        MessageManager.INSTANCE.processMessage(message);
                     } else {
                         if (isAuthorized) {
                             for (ErrorObserver o : errorObservers) {
                                 o.onError("Опаньки, сервер упал. Ждем переподключения...");
                             }
                             isAuthorized = false;
+
                         }
+
+                        disconnect();
 
                         try {
                             connect(host, port, user.getName());
-                            MessageManager.instance.processMessage(new InfoMessage("Сервер снова доступен"));
+                            MessageManager.INSTANCE.processMessage(new InfoMessage("Сервер снова доступен"));
                         } catch (ConnectionManagerException e) {
                             try {
                                 Thread.sleep(1000);
                             } catch (InterruptedException i) {
-                                interrupted = true;
+                                break;
                             }
                         }
                     }
                 } catch (IOException e) {
                     System.out.println("Ошибка при чтении потока сокета " + e.getMessage());
                 }
-
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    interrupted = true;
-                }
             }
         });
         messageListenerThread.start();
+    }
+
+    public void disconnect() throws IOException {
+        if (socket != null) {
+            socket.close();
+        }
     }
 }

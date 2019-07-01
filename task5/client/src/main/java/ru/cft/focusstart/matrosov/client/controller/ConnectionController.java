@@ -18,9 +18,9 @@ public class ConnectionController extends JFrame implements SuccessObserver, Err
 
     ConnectionController() {
         setupComponents();
-        MessageManager.instance.addSuccessObserver(this);
-        MessageManager.instance.addErrorObserver(this);
-        ConnectionManager.instance.addErrorObserver(this);
+        MessageManager.INSTANCE.addSuccessObserver(this);
+        MessageManager.INSTANCE.addErrorObserver(this);
+        ConnectionManager.INSTANCE.addErrorObserver(this);
     }
 
     private void setupComponents() {
@@ -53,7 +53,7 @@ public class ConnectionController extends JFrame implements SuccessObserver, Err
                 if (userName.equals("")) {
                     onError("Некооректный ник");
                 } else {
-                    ConnectionManager.instance.connect(server, port, userName);
+                    ConnectionManager.INSTANCE.connect(server, port, userName);
                 }
             } catch (ConnectionManagerException e) {
                 onError("Не удалось подключиться");
@@ -98,6 +98,7 @@ public class ConnectionController extends JFrame implements SuccessObserver, Err
     private void clearAlert() {
         if (alert != null) {
             alert.dispose();
+            alert = null;
         }
     }
 }

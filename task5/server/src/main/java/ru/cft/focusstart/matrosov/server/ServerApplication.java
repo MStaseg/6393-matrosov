@@ -7,11 +7,10 @@ public class ServerApplication {
 
     public static void main(String[] args) {
         try {
-            Server.instance.start();
+            Server.INSTANCE.start();
         } catch (ServerException e) {
             System.out.println(e.getMessage());
         }
-
     }
 
 }

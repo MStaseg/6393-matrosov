@@ -24,7 +24,7 @@ public class ChatController extends JFrame implements MessageObserver, InfoObser
 
     ChatController() {
 
-        MessageManager manager = MessageManager.instance;
+        MessageManager manager = MessageManager.INSTANCE;
         manager.addClientObserver(this);
         manager.addMessageObserver(this);
         manager.addInfoObserver(this);
@@ -49,7 +49,7 @@ public class ChatController extends JFrame implements MessageObserver, InfoObser
                 return;
             }
             messageTextField.setText("");
-            MessageManager.instance.sendMessage(text);
+            MessageManager.INSTANCE.sendMessage(text);
         });
 
         chatArea = new JTextArea();
@@ -121,7 +121,7 @@ public class ChatController extends JFrame implements MessageObserver, InfoObser
     @Override
     public void onNewClientList(List<User> clients) {
         usersArea.setText("");
-        for (User u: clients) {
+        for (User u : clients) {
             usersArea.append("\u25CF " + u.getName() + "\n");
         }
     }

@@ -2,63 +2,41 @@ package ru.cft.focusstart.matrosov.server.service;
 
 import ru.cft.focusstart.matrosov.common.*;
 import ru.cft.focusstart.matrosov.entity.User;
-import ru.cft.focusstart.matrosov.server.exception.ServiceClientException;
-import ru.cft.focusstart.matrosov.server.exception.ServiceMessageException;
+import ru.cft.focusstart.matrosov.server.exception.ClientException;
 import ru.cft.focusstart.matrosov.server.net.Client;
 import ru.cft.focusstart.matrosov.server.repository.Repositories;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DefaultClientService implements ClientService {
 
-    static final DefaultClientService instance = new DefaultClientService();
+    static final DefaultClientService INSTANCE = new DefaultClientService();
 
-    private DefaultClientService() {}
+    private final List<Client> clientList;
 
-    @Override
-    public synchronized List<Client> getClients() {
-        return Repositories.getClientRepository().get();
+    private DefaultClientService() {
+        clientList = new CopyOnWriteArrayList<>();
     }
 
     @Override
-    public void disconnectAll() throws ServiceClientException {
-        List<Client> clients = getClients();
-        for (Client client : clients) {
-            try {
-                client.disconnect();
-            } catch (IOException e) {
-                throw new ServiceClientException("Ошибка при отсоединении клиента " + client.getUser().getName());
-            }
-        }
+    public List<Client> getClients() {
+        return new ArrayList<>(clientList);
     }
 
     @Override
-    public void disconnect(Client client) throws ServiceClientException, ServiceMessageException {
-        try {
+    public void disconnectAll() throws ClientException {
+        for (Client client : clientList) {
             client.disconnect();
-            Repositories.getClientRepository().remove(client);
-            if (client.getUser() != null) {
-                List<Client> clients = Repositories.getClientRepository().get();
-                List<User> list = new ArrayList<>();
-                for (Client c: clients) {
-                    list.add(c.getUser());
-                }
-                Services.getMessageService().sendMessageToAll(new ClientListMessage(list));
-                InfoMessage infoMessage = new InfoMessage(client.getUser().getName() + " отключился");
-                Services.getMessageService().sendMessageToAll(infoMessage);
-            }
-        } catch (IOException e) {
-            throw new ServiceClientException("Ошибка при отсоединении клиента " + client.getUser().getName());
         }
     }
 
     @Override
-    public void setUser(Client client, LoginMessage message) throws ServiceMessageException {
-        List<Client> clients = Services.getClientService().getClients();
+    public void addClient(Client client, LoginMessage message) throws ClientException {
+
         boolean incorrectUserName = false;
-        for (Client c : clients) {
+        for (Client c : clientList) {
             if (message.getUser().equals(c.getUser())) {
                 incorrectUserName = true;
             }
@@ -66,24 +44,59 @@ public class DefaultClientService implements ClientService {
 
         if (incorrectUserName) {
             LoginFailMessage errorMessage = new LoginFailMessage("Такой ник уже занят другим пользователем");
-            Services.getMessageService().sendMessage(client, errorMessage);
+            client.sendMessage(errorMessage);
         } else {
-            Repositories.getClientRepository().add(client);
-            clients = Services.getClientService().getClients();
+            client.setUser(message.getUser());
+            clientList.add(client);
 
             LoginSuccessMessage successMessage = new LoginSuccessMessage();
-            Services.getMessageService().sendMessage(client, successMessage);
+            client.sendMessage(successMessage);
 
-            client.setUser(message.getUser());
             List<User> list = new ArrayList<>();
-            for (Client c: clients) {
+            for (Client c: clientList) {
                 list.add(c.getUser());
             }
-            Services.getMessageService().sendMessageToAll(new ClientListMessage(list));
-
+            sendClientListMessageToAll(new ClientListMessage(list));
 
             InfoMessage infoMessage = new InfoMessage(message.getUser().getName() + " присоединился");
-            Services.getMessageService().sendMessageToAll(infoMessage);
+            sendInfoMessageToAll(infoMessage);
+        }
+    }
+
+    @Override
+    public void removeClient(Client client) throws ClientException {
+        clientList.remove(client);
+
+        List<User> list = new ArrayList<>();
+        for (Client c: clientList) {
+            list.add(c.getUser());
+        }
+
+        sendClientListMessageToAll(new ClientListMessage(list));
+        InfoMessage infoMessage = new InfoMessage(client.getUser().getName() + " отключился");
+        sendInfoMessageToAll(infoMessage);
+    }
+
+    @Override
+    public void sendChatMessageToAll(ChatMessage message) throws ClientException {
+        Repositories.getMessageRepository().add(message);
+        sendMessageToAll(message);
+    }
+
+    @Override
+    public void sendInfoMessageToAll(InfoMessage message) throws ClientException {
+        Repositories.getMessageRepository().add(message);
+        sendMessageToAll(message);
+    }
+
+    @Override
+    public void sendClientListMessageToAll(ClientListMessage message) throws ClientException {
+        sendMessageToAll(message);
+    }
+
+    private void sendMessageToAll(JsonMessage message) throws ClientException {
+        for (Client client: clientList) {
+            client.sendMessage(message);
         }
     }
 }

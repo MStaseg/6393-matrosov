@@ -1,11 +1,9 @@
 package ru.cft.focusstart.matrosov.server.net;
 
 import ru.cft.focusstart.matrosov.common.*;
+import ru.cft.focusstart.matrosov.server.exception.ClientException;
 import ru.cft.focusstart.matrosov.server.exception.ServerException;
-import ru.cft.focusstart.matrosov.server.exception.ServiceClientException;
-import ru.cft.focusstart.matrosov.server.exception.ServiceMessageException;
 import ru.cft.focusstart.matrosov.server.service.Services;
-import ru.cft.focusstart.matrosov.util.JsonMapper;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -14,7 +12,7 @@ import java.util.*;
 
 public class Server {
 
-    public static final Server instance = new Server();
+    public static final Server INSTANCE = new Server();
 
     private ServerSocket serverSocket;
 
@@ -34,43 +32,53 @@ public class Server {
         addShutdownHook();
     }
 
-    private void addMessageListener(Client client) {
+    private void addChatMessageListener(Client client) {
         new Thread(() -> {
-            boolean interrupted = false;
-            while (!interrupted) {
+            while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    String msgString = client.getMessage();
-                    if (msgString != null) {
-                        JsonMessage message = JsonMapper.instance.mapToMessage(msgString);
-                        if (client.getUser() == null) {
-                            if (message instanceof LoginMessage) {
-                                LoginMessage msg = (LoginMessage) message;
-                                System.out.println(message);
-                                Services.getClientService().setUser(client, msg);
-                            }
-                        } else {
-                            Services.getMessageService().sendMessageToAll(message);
-                        }
+                    JsonMessage message = getNextMessage(client);
+
+                    if (message instanceof ChatMessage) {
+                        Services.getClientService().sendChatMessageToAll((ChatMessage) message);
                     } else {
-                        Services.getClientService().disconnect(client);
-                        interrupted = true;
+                        Services.getClientService().removeClient(client);
+                        client.disconnect();
+                        break;
                     }
 
-                } catch (ServiceClientException e) {
+                } catch (ClientException e) {
                     System.out.println("Ошибка при работе с клиентом: " + e.getMessage());
-                } catch (ServiceMessageException e) {
-                    System.out.println("Ошибка при работе с сообщениями: " + e.getMessage());
-                } catch (IOException e) {
-                    System.out.println("Неизвестная ошибка: " + e.getMessage());
-                }
-
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    interrupted = true;
                 }
             }
         }).start();
+    }
+
+    private void addAuthMessageListener(Client client) {
+        new Thread(() -> {
+            try {
+                JsonMessage message = getNextMessage(client);
+
+                if (message instanceof LoginMessage) {
+                    LoginMessage msg = (LoginMessage) message;
+                    Services.getClientService().addClient(client, msg);
+                    addChatMessageListener(client);
+                } else {
+                    client.disconnect();
+                }
+            }  catch (ClientException e) {
+                System.out.println("Ошибка при работе с клиентом: " + e.getMessage());
+            }
+        }).start();
+    }
+
+    private JsonMessage getNextMessage(Client client) {
+        JsonMessage message = null;
+        try {
+            message = client.getMessage();
+        } catch (ClientException e) {
+            /* Ignore but got msg=null as a result */
+        }
+        return message;
     }
 
     private void addShutdownHook() {
@@ -79,20 +87,28 @@ public class Server {
                 serverSocket.close();
                 try {
                     Services.getClientService().disconnectAll();
-                } catch (ServiceClientException e) {
+                } catch (ClientException e) {
                     System.out.println(e.getMessage());
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Ошибка при завершении работы сервера" + e.getMessage());
             }
         }));
     }
 
-    private void startSocketObserver() throws IOException {
+    private void startSocketObserver() throws ServerException {
         while (true) {
-            Socket clientSocket = serverSocket.accept();
-            Client newClient = new Client(clientSocket);
-            addMessageListener(newClient);
+            try {
+                Socket clientSocket = serverSocket.accept();
+                try {
+                    Client newClient = new Client(clientSocket);
+                    addAuthMessageListener(newClient);
+                } catch (IOException e) {
+                    System.out.println("При подключении клиента возникла ошибка " + e.getMessage());
+                }
+            } catch (IOException e) {
+                throw new ServerException("При работе сервера возникла ошибка", e);
+            }
         }
     }
 }
